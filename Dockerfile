@@ -110,12 +110,10 @@ RUN pip install -q -r requirements-test.txt
 RUN npm install
 
 # Create default storage
-RUN mkdir -p var/store
+RUN mkdir -p /var/store
 
-COPY . .
-
-# Remove production settings
-# RUN rm -f ./tardis/settings.py
+# Copy app code
+COPY mytardis/ .
 
 # This will keep container running...
 CMD ["tail", "-f", "/dev/null"]
