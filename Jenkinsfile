@@ -65,6 +65,7 @@ podTemplate(
         def ip = sh(returnStdout: true, script: 'hostname -i').trim()
         stage('Clone repository') {
             checkout scm
+            sh "git submodule update --init --recursive"
         }
         dockerImageTag = sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%h"').trim()
         dockerImageFullNameTag = "${dockerHubAccount}/${dockerImageName}:${dockerImageTag}"
