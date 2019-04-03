@@ -1,0 +1,3 @@
+[submodule "mytardis"]
+	path = mytardis
+	url = https://github.com/mytardis/mytardis
