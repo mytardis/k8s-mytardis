@@ -52,6 +52,9 @@ RUN pip install -q -r requirements-base.txt
 COPY mytardis/requirements-postgres.txt ./
 RUN pip install -q -r requirements-postgres.txt
 
+COPY mytardis/requirements-ldap.txt ./
+RUN pip install -q -r requirements-ldap.txt
+
 COPY mytardis/tardis/apps/social_auth/requirements*.txt ./requirements-auth.txt
 RUN pip install -q -r requirements-auth.txt
 
@@ -110,7 +113,7 @@ RUN pip install -q -r requirements-test.txt
 RUN npm install
 
 # Create default storage
-RUN mkdir -p /var/store
+RUN mkdir -p var/store
 
 # Copy app code
 COPY mytardis/ .
