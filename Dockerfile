@@ -75,7 +75,7 @@ FROM builder AS production
 COPY mytardis/ .
 
 COPY settings.py ./tardis/
-COPY beat.py ./tardis/
+COPY beat.py ./
 
 EXPOSE 8000
 
@@ -100,9 +100,6 @@ RUN curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-ke
 RUN apt-get -yqq update && \
     apt-get -yqq install google-chrome-stable && \
     apt-get clean
-
-# Install PhantomJS
-RUN PHANTOMJS_CDNURL=https://npm.taobao.org/mirrors/phantomjs/ npm install phantomjs-prebuilt
 
 # Install MySQL packages
 COPY mytardis/requirements-mysql.txt ./
