@@ -1,9 +1,9 @@
 def workerLabel = 'mytardis'
-def dockerHubAccount = 'dyakhnov'
-def dockerImageName = 'mytardis'
+def dockerHubAccount = 'mytardis'
+def dockerImageName = 'k8s-mytardis'
 def dockerImageTag = ''
 def dockerImageFullNameTag = ''
-def dockerImageFullNameLatest = "${dockerHubAccount}/${dockerImageName}:nofilters"
+def dockerImageFullNameLatest = "${dockerHubAccount}/${dockerImageName}:latest"
 def k8sDeploymentNamespace = 'mytardis'
 
 podTemplate(
