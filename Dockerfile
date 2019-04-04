@@ -44,6 +44,9 @@ ENV PYTHONDONTWRITEBYTECODE 1
 
 WORKDIR /app
 
+COPY requirements.txt ./
+RUN pip install -q -r requirements.txt
+
 COPY mytardis/requirements-base.txt ./
 # don't install Git repos in 'edit' mode
 RUN sed -i 's/-e git+/git+/g' requirements-base.txt
