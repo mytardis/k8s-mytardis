@@ -13,16 +13,14 @@ podTemplate(
     containers: [
         containerTemplate(
             name: 'docker',
-            image: 'docker:18.06.1-ce-dind',
+            image: 'docker:18.06.3-ce-dind',
             ttyEnabled: true,
             command: 'cat',
             envVars: [
                 containerEnvVar(key: 'DOCKER_CONFIG', value: '/tmp/docker')
             ],
-            resourceRequestCpu: '2000m',
-            resourceLimitCpu: '2000m',
-            resourceRequestMemory: '2Gi',
-            resourceLimitMemory: '2Gi'
+            resourceRequestCpu: '1000m',
+            resourceRequestMemory: '2Gi'
         ),
         containerTemplate(
             name: 'mysql',
