@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta
-import shelve
+from celery.beat import Service
+from tardis.celery import tardis_app
 
+
+schedule = Service(tardis_app).get_scheduler().get_schedule()
 now = datetime.utcnow()
-file_data = shelve.open('celerybeat-schedule') # Name of the file used by PersistentScheduler to store the last run times of periodic tasks.
 
-if 'entries' in file_data:
-  for task_name, task in file_data['entries'].items():
-    print(task.__dict__)
+for task_name, task in schedule.items():
     next_run = task.last_run_at.replace(tzinfo=None) + task.schedule.run_every
     print("{}: check if {} is less than {}".format(task_name, now, next_run))
     assert now < next_run
