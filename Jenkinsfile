@@ -48,13 +48,13 @@ podTemplate(
             ttyEnabled: true,
             command: 'cat',
             envVars: [
-                containerEnvVar(key: 'KUBECONFIG', value: '/tmp/kube/config')
+                containerEnvVar(key: 'KUBECONFIG', value: '/tmp/kube/admin.conf')
             ],
             resourceLimitCpu: '250m'
         )
     ],
     volumes: [
-        secretVolume(secretName: 'kube-config', mountPath: '/tmp/kube'),
+        secretVolume(secretName: 'kube-config-test', mountPath: '/tmp/kube'),
         secretVolume(secretName: 'docker-config', mountPath: '/tmp/docker'),
         hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')
     ]
@@ -104,6 +104,8 @@ podTemplate(
         }
         stage('Deploy image to Kubernetes') {
             container('kubectl') {
+                // run migrate
+                // run collectstatic
                 ['mytardis', 'celery-worker', 'celery-beat'].each { item ->
                     sh ("kubectl -n ${k8sDeploymentNamespace} set image deployment/${item} ${item}=${dockerImageFullNameTag}")
                 }
