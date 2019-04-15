@@ -33,6 +33,11 @@ if os.path.isfile(settings_filename):
     DEFAULT_STORAGE_BASE_DIR = data['default_store_path']
     METADATA_STORE_PATH = data['metadata_store_path']
 
+    EMAIL_HOST = data['email']['host']
+    EMAIL_PORT = data['email']['port']
+    DEFAULT_FROM_EMAIL = data['email']['from']
+
+
 CELERY_QUEUES += (
     Queue('filters', Exchange('filters'),
           routing_key='filters',
@@ -75,13 +80,3 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 DEFAULT_ARCHIVE_FORMATS = ['tar']
 REDIS_VERIFY_MANAGER = False
-
-# Clear a few global vars
-def del_if_set(name):
-    if name in globals():
-        del(globals()[name])
-del_if_set('EMAIL_PORT')
-del_if_set('EMAIL_HOST')
-del_if_set('EMAIL_HOST_USER')
-del_if_set('EMAIL_HOST_PASSWORD')
-del_if_set('EMAIL_USE_TLS')
