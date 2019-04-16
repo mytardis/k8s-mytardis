@@ -62,7 +62,7 @@ COPY mytardis/tardis/apps/social_auth/requirements*.txt ./requirements-auth.txt
 RUN pip install -q -r requirements-auth.txt
 
 # Install MyData app
-RUN git clone https://github.com/mytardis/mytardis-app-mydata.git ./tardis/apps/mydata/
+RUN git clone https://github.com/dyakhnov/mytardis-app-mydata.git ./tardis/apps/mydata/
 RUN pip install -r tardis/apps/mydata/requirements.txt
 
 COPY mytardis/package.json .
