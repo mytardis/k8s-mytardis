@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: collectstatic
+  namespace: mytardis
+spec:
+  completions: 1
+  parallelism: 1
+  template:
+    spec:
+      containers:
+      - name: go
+        image: mytardis/k8s-mytardis:latest
+        command: ["/bin/sh", "-c", "python manage.py collectstatic --noinput"]
+        volumeMounts:
+          - name: settings
+            mountPath: /app/tardis/settings.yaml
+            subPath: settings.yaml
+          - name: stormon-cinder-staging3
+            mountPath: /srv/stormon-cinder-staging3
+      restartPolicy: Never
+      volumes:
+      - name: settings
+        configMap:
+          name: mytardis
+      - name: stormon-cinder-staging3
+        persistentVolumeClaim:
+          claimName: stormon-cinder-staging3

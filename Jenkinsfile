@@ -63,7 +63,7 @@ podTemplate(
         def ip = sh(returnStdout: true, script: 'hostname -i').trim()
         stage('Clone repository') {
             checkout scm
-            sh "git submodule update --init --recursive"
+            sh("git submodule update --init --recursive")
         }
         dockerImageTag = sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%h"').trim()
         dockerImageFullNameTag = "${dockerHubAccount}/${dockerImageName}:${dockerImageTag}"
@@ -104,10 +104,13 @@ podTemplate(
         }
         stage('Deploy image to Kubernetes') {
             container('kubectl') {
-                // run migrate
-                // run collectstatic
+                ['migrate', 'collectstatic'].each { item ->
+                    sh("kubectl create -f jobs/{item}.yaml")
+                    sh("kubectl -n ${k8sDeploymentNamespace} wait --for=condition=complete --timeout=60s job/{item}")
+                    sh("kubectl -n ${k8sDeploymentNamespace} delete job/{item}")
+                }
                 ['mytardis', 'celery-worker', 'celery-beat'].each { item ->
-                    sh ("kubectl -n ${k8sDeploymentNamespace} set image deployment/${item} ${item}=${dockerImageFullNameTag}")
+                    sh("kubectl -n ${k8sDeploymentNamespace} set image deployment/${item} ${item}=${dockerImageFullNameTag}")
                 }
             }
         }
