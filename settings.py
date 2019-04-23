@@ -22,8 +22,9 @@ if os.path.isfile(settings_filename):
     }
 
     CELERY_RESULT_BACKEND = 'amqp'
-    BROKER_URL = 'amqp://%(user)s:%(password)s@%(host)s:5672/%(vhost)s' % {
+    BROKER_URL = 'amqp://%(user)s:%(password)s@%(host)s:%(port)s/%(vhost)s' % {
         'host': data['rabbitmq']['host'],
+        'port': data['rabbitmq']['port'],
         'user': data['rabbitmq']['user'],
         'password': urllib.quote_plus(data['rabbitmq']['password'],),
         'vhost': data['rabbitmq']['vhost']
