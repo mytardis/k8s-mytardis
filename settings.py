@@ -38,6 +38,11 @@ if os.path.isfile(settings_filename):
     EMAIL_PORT = data['email']['port']
     DEFAULT_FROM_EMAIL = data['email']['from']
 
+    ADMINS = []
+    for user in data['admins']:
+        ADMINS.append((user['name'], user['email']))
+    MANAGERS = ADMINS
+
 
 CELERY_QUEUES += (
     Queue('filters', Exchange('filters'),
