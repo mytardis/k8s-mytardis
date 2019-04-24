@@ -37,6 +37,7 @@ if os.path.isfile(settings_filename):
     EMAIL_HOST = data['email']['host']
     EMAIL_PORT = data['email']['port']
     DEFAULT_FROM_EMAIL = data['email']['from']
+    SERVER_EMAIL = data['email']['server']
 
     ADMINS = []
     for user in data['admins']:
