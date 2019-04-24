@@ -105,7 +105,7 @@ podTemplate(
         stage('Deploy image to Kubernetes') {
             container('kubectl') {
                 ['migrate', 'collectstatic'].each { item ->
-                    sh("kubectl -n ${k8sDeploymentNamespace} delete job/${item}")
+                    sh("kubectl -n ${k8sDeploymentNamespace} delete job/${item} --ignore-not-found")
                     sh("kubectl create -f jobs/${item}.yaml")
                     sh("kubectl -n ${k8sDeploymentNamespace} wait --for=condition=complete --timeout=60s job/${item}")
                 }
