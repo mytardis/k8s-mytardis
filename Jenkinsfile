@@ -19,7 +19,7 @@ podTemplate(
             envVars: [
                 containerEnvVar(key: 'DOCKER_CONFIG', value: '/tmp/docker')
             ],
-            resourceRequestCpu: '1000m',
+            resourceRequestCpu: '2000m',
             resourceRequestMemory: '2Gi'
         ),
         containerTemplate(
@@ -29,7 +29,7 @@ podTemplate(
             envVars: [
                 envVar(key: 'MYSQL_ROOT_PASSWORD', value: 'mysql')
             ],
-            resourceLimitCpu: '500m',
+            resourceLimitCpu: '750m',
             resourceLimitMemory: '1Gi'
         ),
         containerTemplate(
@@ -39,7 +39,7 @@ podTemplate(
             envVars: [
                 envVar(key: 'POSTGRES_PASSWORD', value: 'postgres')
             ],
-            resourceLimitCpu: '500m',
+            resourceLimitCpu: '750m',
             resourceLimitMemory: '1Gi'
         ),
         containerTemplate(
