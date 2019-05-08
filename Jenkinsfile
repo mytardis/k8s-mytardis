@@ -107,7 +107,7 @@ podTemplate(
                 ['migrate', 'collectstatic'].each { item ->
                     sh("kubectl -n ${k8sDeploymentNamespace} delete job/${item} --ignore-not-found")
                     sh("kubectl create -f jobs/${item}.yaml")
-                    sh("kubectl -n ${k8sDeploymentNamespace} wait --for=condition=complete --timeout=60s job/${item}")
+                    sh("kubectl -n ${k8sDeploymentNamespace} wait --for=condition=complete --timeout=120s job/${item}")
                 }
                 ['mytardis', 'celery-worker', 'celery-beat'].each { item ->
                     sh("kubectl -n ${k8sDeploymentNamespace} set image deployment/${item} ${item}=${dockerImageFullNameTag}")
