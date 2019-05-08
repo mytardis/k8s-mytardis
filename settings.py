@@ -44,6 +44,8 @@ if os.path.isfile(settings_filename):
         ADMINS.append((user['name'], user['email']))
     MANAGERS = ADMINS
 
+    INSTALLED_APPS = data['installed_apps']
+
 
 CELERY_QUEUES += (
     Queue('filters', Exchange('filters'),
