@@ -16,13 +16,13 @@ spec:
           - name: settings
             mountPath: /app/tardis/settings.yaml
             subPath: settings.yaml
-          - name: stormon-cinder-staging3
+          - name: smbstormon-cinder-staging3
             mountPath: /srv/stormon-cinder-staging3
       restartPolicy: Never
       volumes:
       - name: settings
         configMap:
           name: mytardis
-      - name: stormon-cinder-staging3
+      - name: smbstormon-cinder-staging3
         persistentVolumeClaim:
-          claimName: stormon-cinder-staging3
+          claimName: smbstormon-cinder-staging3
