@@ -1,6 +1,5 @@
 import os
 import urllib
-import six
 import yaml
 from .default_settings import *
 
@@ -91,6 +90,27 @@ CSRF_COOKIE_SECURE = True
 DEFAULT_ARCHIVE_FORMATS = ['tar']
 REDIS_VERIFY_MANAGER = False
 
+# Set auth and group providers if specified in yaml data:
+if 'auth_providers' in data:
+    AUTH_PROVIDERS = tuple(data.get('auth_providers'))
+if 'group_providers' in data:
+    GROUP_PROVIDERS = tuple(data.get('group_providers'))
+
+# LDAP configuration
+LDAP_USE_TLS = data.get('ldap_use_tls', False)
+LDAP_URL = data.get('ldap_url', '')
+LDAP_USER_LOGIN_ATTR = data.get('ldap_user_login_attr', '')
+LDAP_USER_ATTR_MAP = {key: value for key, value in
+                      data.get('ldap_user_attr_map', {}).items()}
+LDAP_GROUP_ID_ATTR = data.get('ldap_group_id_attr', '')
+LDAP_GROUP_ATTR_MAP = {key: value for key, value in
+                       data.get('ldap_group_attr_map', {}).items()}
+LDAP_ADMIN_USER = data.get('ldap_admin_user', '')
+LDAP_ADMIN_PASSWORD = data.get('ldap_admin_password', '')
+LDAP_BASE = data.get('ldap_base', '')
+LDAP_USER_BASE = data.get('ldap_user_base', '')
+LDAP_GROUP_BASE = data.get('ldap_group_base', '')
+
 # Add arbitrary string attributes as defined in settings.yaml:
-for name, value in six.iteritems(data.get('other_settings', {})):
+for name, value in data.get('other_settings', {}).items():
     globals()[name] = value
