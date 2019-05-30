@@ -1,5 +1,6 @@
 import os
 import urllib
+import six
 import yaml
 from .default_settings import *
 
@@ -89,3 +90,7 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 DEFAULT_ARCHIVE_FORMATS = ['tar']
 REDIS_VERIFY_MANAGER = False
+
+# Add arbitrary string attributes as defined in settings.yaml:
+for name, value in six.iteritems(data.get('other_settings', {})):
+    globals()[name] = value
