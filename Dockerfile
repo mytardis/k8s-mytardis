@@ -1,88 +1,101 @@
-FROM ubuntu:18.04 AS base
+FROM ubuntu:18.10 AS build
 
-# Upgrade OS and install packages
-RUN apt-get update -yqq && \
-    apt-get install -yqq --no-install-recommends \
-        build-essential \
+ENV DEBIAN_FRONTEND noninteractive
+ENV PYTHONUNBUFFERED 1
+
+# Install runtime packages
+RUN apt-get -yqq update && \
+    apt-get -yqq install --no-install-recommends \
         curl \
         git \
-        gnupg \
-        libfreetype6-dev \
-        libjpeg-dev \
+        gcc \
+        python-pip \
+        python-dev \
+        python-setuptools \
         libldap2-dev \
+        libsasl2-dev \
         libmagic-dev \
         libmagickwand-dev \
-        libmysqlclient-dev \
-        libmysqlclient20 \
-        libsasl2-dev \
-        libssl-dev \
-        libxml2-dev \
-        libxslt1-dev \
-        python-dev \
-        python-pip \
-        python-setuptools \
-        zlib1g-dev \
-        unzip \
+        libglu1-mesa-dev \
+        libxi6 \
         mc \
         ncdu && \
-	rm -rf /var/lib/apt/lists/*
+    pip install --no-cache-dir --upgrade pip
 
 # Install NodeJS
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
-    apt-get update -yqq && \
-    apt-get install -yqq --no-install-recommends \
-        nodejs && \
-	rm -rf /var/lib/apt/lists/*
+    apt-get -yqq update && \
+    apt-get -yqq install --no-install-recommends nodejs
 
-# Upgrade PIP
-RUN pip install --upgrade --no-cache-dir pip
-
-FROM base AS builder
-
-ENV PYTHONUNBUFFERED 1
-ENV PYTHONDONTWRITEBYTECODE 1
+# Create runtime user
+RUN mkdir -p /app && \
+    groupadd -r mytardis && \
+    useradd -r -g mytardis mytardis && \
+    chown mytardis:mytardis -R /app
 
 WORKDIR /app
 
+# Clone MyTardis and MyData repos
+RUN git clone --depth 1 --branch develop \
+    https://github.com/mytardis/mytardis.git ./ && \
+    git clone --depth 1 --branch master \
+    https://github.com/mytardis/mytardis-app-mydata.git ./tardis/apps/mydata/ && \
+    # Cleanup
+    rm -rf /app/.git* && \
+    rm -rf /app/tardis/apps/mydata/.git*
+
+# Copy k8s-related requirements
 COPY requirements.txt ./
-RUN pip install -q -r requirements.txt
 
-COPY mytardis/requirements-base.txt ./
-# don't install Git repos in 'edit' mode
-RUN sed -i 's/-e git+/git+/g' requirements-base.txt
-RUN pip install -q -r requirements-base.txt
+# Install Python packages
+RUN cat requirements.txt \
+    requirements-base.txt \
+    requirements-postgres.txt \
+    requirements-ldap.txt \
+    tardis/apps/social_auth/requirements.txt \
+    tardis/apps/mydata/requirements.txt \
+    > /tmp/requirements.txt && \
+    # Display packages
+    sort /tmp/requirements.txt && \
+    # Don't install repos in edit mode
+    sed -i 's/-e git+/git+/g' /tmp/requirements.txt && \
+    pip install --no-cache-dir -q -r /tmp/requirements.txt
 
-COPY mytardis/requirements-postgres.txt ./
-RUN pip install -q -r requirements-postgres.txt
+# Install NodeJS packages
+RUN npm install --production --no-cache --quiet --depth 0 && \
+    npm run-script build --no-cache --quiet
 
-COPY mytardis/requirements-ldap.txt ./
-RUN pip install -q -r requirements-ldap.txt
+FROM build AS production
 
-COPY mytardis/tardis/apps/social_auth/requirements*.txt ./requirements-auth.txt
-RUN pip install -q -r requirements-auth.txt
+# Cleanup
+RUN rm -rf /app/node_modules && \
+    rm -rf /app/false && \
+    apt-get -y remove --purge \
+        gcc \
+        git
 
-# Install MyData app
-RUN git clone https://github.com/dyakhnov/mytardis-app-mydata.git ./tardis/apps/mydata/
-RUN pip install -r tardis/apps/mydata/requirements.txt
-
-COPY mytardis/package.json .
-
-RUN npm set progress=false && \
-    npm config set depth 0 && \
-    npm install --production
-
-FROM builder AS production
-
-COPY mytardis/ .
-
+# Copy k8s-related code
 COPY settings.py ./tardis/
 COPY beat.py ./
+COPY entrypoint.sh ./
 
+USER mytardis
 EXPOSE 8000
 
-CMD ["gunicorn", "--bind", ":8000", "--config", "gunicorn_settings.py", "wsgi:application"]
+CMD ["sh", "entrypoint.sh"]
 
-FROM builder AS test
+FROM build AS test
+
+# Add Chrome repo
+RUN curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
+    echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list
+
+# Install utilities
+RUN apt-get -yqq update && \
+    apt-get -yqq install --no-install-recommends \
+        unzip \
+        libmysqlclient-dev \
+        google-chrome-stable
 
 # Install Chrome WebDriver
 RUN CHROMEDRIVER_VERSION=`curl -sS https://chromedriver.storage.googleapis.com/LATEST_RELEASE` && \
@@ -93,31 +106,17 @@ RUN CHROMEDRIVER_VERSION=`curl -sS https://chromedriver.storage.googleapis.com/L
     chmod +x /opt/chromedriver-$CHROMEDRIVER_VERSION/chromedriver && \
     ln -fs /opt/chromedriver-$CHROMEDRIVER_VERSION/chromedriver /usr/local/bin/chromedriver
 
-# Setup Google Chrome repo
-RUN curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
-    echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list
-
-# Install Google Chrome
-RUN apt-get -yqq update && \
-    apt-get -yqq install google-chrome-stable && \
-    apt-get clean
-
-# Install MySQL packages
-COPY mytardis/requirements-mysql.txt ./
-RUN pip install -q -r requirements-mysql.txt
-
-# Install test packages
-COPY mytardis/requirements-test.txt ./
-RUN pip install -q -r requirements-test.txt
+# Install Python packages
+RUN cat requirements-mysql.txt \
+    requirements-test.txt \
+    > /tmp/requirements.txt && \
+    pip install --no-cache-dir -q -r /tmp/requirements.txt
 
 # Install NodeJS packages
-RUN npm install
+RUN npm install --no-cache --quiet --depth 0
 
 # Create default storage
 RUN mkdir -p var/store
-
-# Copy app code
-COPY mytardis/ .
 
 # This will keep container running...
 CMD ["tail", "-f", "/dev/null"]
