@@ -29,8 +29,8 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
 
 # Create runtime user
 RUN mkdir -p /app && \
-    groupadd -r mytardis && \
-    useradd -r -g mytardis mytardis && \
+    groupadd -r -g 1001 mytardis && \
+    useradd -r -u 1001 -g 1001 mytardis && \
     chown mytardis:mytardis -R /app
 
 WORKDIR /app
