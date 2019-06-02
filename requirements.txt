@@ -1,1 +1,11 @@
 PyYAML==5.1
+
+##############################################################################
+# Site-specific pip requirements                                             #
+#                                                                            #
+# To Do: Clarify whether this branch is intended to be Monash-specific.      #
+# If not, the site-specific pip requirements should be sourced from          #
+# somewhere else, e.g. a ConfigMap populated by the Jenkinsfile in a Monash  #
+# specific branch of the k8s-config repository.                              #
+##############################################################################
+git+https://github.com/monash-merc/Monash_OpenID_Login@ca67ff2455a88cecfcdabd7f90f12e708977cce9#egg=monash_openid_login
