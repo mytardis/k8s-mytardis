@@ -96,6 +96,14 @@ if 'auth_providers' in data:
 if 'group_providers' in data:
     GROUP_PROVIDERS = tuple(data.get('group_providers'))
 
+# Set authentication backends if specified in yaml data:
+if 'authentication_backends' in data:
+    AUTHENTICATION_BACKENDS = tuple(data.get('authentication_backends'))
+
+# Context processors
+TEMPLATES[0]['OPTIONS']['context_processors'].extend(
+    data.get('context_processors', []))
+
 # LDAP configuration
 LDAP_USE_TLS = data.get('ldap_use_tls', False)
 LDAP_URL = data.get('ldap_url', '')
