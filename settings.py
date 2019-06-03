@@ -104,6 +104,10 @@ if 'authentication_backends' in data:
 TEMPLATES[0]['OPTIONS']['context_processors'].extend(
     data.get('context_processors', []))
 
+# Override default middleware if specified in yaml data:
+if 'middleware' in data:
+    MIDDLEWARE = data.get('middleware')
+
 # LDAP configuration
 LDAP_USE_TLS = data.get('ldap_use_tls', False)
 LDAP_URL = data.get('ldap_url', '')
