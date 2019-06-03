@@ -8,4 +8,4 @@ PyYAML==5.1
 # somewhere else, e.g. a ConfigMap populated by the Jenkinsfile in a Monash  #
 # specific branch of the k8s-config repository.                              #
 ##############################################################################
-git+https://github.com/monash-merc/Monash_OpenID_Login@ca67ff2455a88cecfcdabd7f90f12e708977cce9#egg=monash_openid_login
+git+https://github.com/monash-merc/Monash_OpenID_Login@924fe9289c4ea75cda33a388bc8d4903a12f355e#egg=monash_openid_login
