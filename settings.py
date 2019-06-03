@@ -111,6 +111,11 @@ LDAP_BASE = data.get('ldap_base', '')
 LDAP_USER_BASE = data.get('ldap_user_base', '')
 LDAP_GROUP_BASE = data.get('ldap_group_base', '')
 
+# Overridable login views
+if 'login_views' in data:
+    LOGIN_VIEWS_FROM_YAML = data.get('login_views')
+    LOGIN_VIEWS = { int(key): LOGIN_VIEWS_FROM_YAML[key] for key in LOGIN_VIEWS_FROM_YAML.keys() }
+
 # Add arbitrary string attributes as defined in settings.yaml:
 for name, value in data.get('other_settings', {}).items():
     globals()[name] = value
