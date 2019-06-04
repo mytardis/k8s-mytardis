@@ -30,7 +30,6 @@ if os.path.isfile(settings_filename):
         'vhost': data['rabbitmq']['vhost']
     }
 
-    STATIC_ROOT = data['static_files_path']
     DEFAULT_STORAGE_BASE_DIR = data['default_store_path']
     METADATA_STORE_PATH = data['metadata_store_path']
 
