@@ -89,6 +89,13 @@ CSRF_COOKIE_SECURE = True
 DEFAULT_ARCHIVE_FORMATS = ['tar']
 REDIS_VERIFY_MANAGER = False
 
+# SFTP settings
+if 'sftp' in data:
+    SFTP_GEVENT = data.get('gevent')
+    SFTP_HOST_KEY = data.get('host_key')
+    SFTP_PORT = data.get('port')
+    SFTP_USERNAME_ATTRIBUTE = data.get('username_attribute')
+
 # Set auth and group providers if specified in yaml data:
 if 'auth_providers' in data:
     AUTH_PROVIDERS = tuple(data.get('auth_providers'))

@@ -104,7 +104,7 @@ podTemplate(
                     sh("kubectl create -f jobs/${item}.yaml")
                     sh("kubectl -n ${k8sDeploymentNamespace} wait --for=condition=complete --timeout=240s job/${item}")
                 }
-                ['mytardis', 'celery-worker', 'celery-beat'].each { item ->
+                ['mytardis', 'sftp', 'celery-worker', 'celery-beat'].each { item ->
                     sh("kubectl -n ${k8sDeploymentNamespace} set image deployment/${item} ${item}=${dockerImageFullNameTag}")
                 }
             }
