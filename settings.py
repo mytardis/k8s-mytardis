@@ -91,10 +91,10 @@ REDIS_VERIFY_MANAGER = False
 
 # SFTP settings
 if 'sftp' in data:
-    SFTP_GEVENT = data.get('gevent')
-    SFTP_HOST_KEY = tuple(data.get('host_key'))
-    SFTP_PORT = data.get('port')
-    SFTP_USERNAME_ATTRIBUTE = data.get('username_attribute')
+    SFTP_GEVENT = data['sftp']['gevent']
+    SFTP_HOST_KEY = data['sftp']['host_key']
+    SFTP_PORT = data['sftp']['port']
+    SFTP_USERNAME_ATTRIBUTE = data['sftp']['username_attribute']
 
 # Set auth and group providers if specified in yaml data:
 if 'auth_providers' in data:
