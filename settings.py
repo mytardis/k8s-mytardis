@@ -92,7 +92,7 @@ REDIS_VERIFY_MANAGER = False
 # SFTP settings
 if 'sftp' in data:
     SFTP_GEVENT = data.get('gevent')
-    SFTP_HOST_KEY = data.get('host_key')
+    SFTP_HOST_KEY = tuple(data.get('host_key'))
     SFTP_PORT = data.get('port')
     SFTP_USERNAME_ATTRIBUTE = data.get('username_attribute')
 
