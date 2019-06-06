@@ -19,7 +19,8 @@ RUN apt-get -yqq update && \
         libglu1-mesa-dev \
         libxi6 \
         mc \
-        ncdu && \
+        ncdu \
+        vim-tiny && \
     pip install --no-cache-dir --upgrade pip
 
 # Install NodeJS
@@ -30,42 +31,41 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
 # Create runtime user
 RUN mkdir -p /app && \
     groupadd -r -g 1001 mytardis && \
-    useradd -r -u 1001 -g 1001 mytardis && \
-    chown mytardis:mytardis -R /app
+    useradd -r -m -u 1001 -g 1001 mytardis
 
 WORKDIR /app
 
-# Clone MyTardis and MyData repos
-RUN git clone --depth 1 --branch develop \
-    https://github.com/mytardis/mytardis.git ./ && \
-    git clone --depth 1 --branch master \
-    https://github.com/mytardis/mytardis-app-mydata.git ./tardis/apps/mydata/ && \
-    # Cleanup
-    rm -rf /app/.git* && \
-    rm -rf /app/tardis/apps/mydata/.git*
-
-# Copy k8s-related requirements
-COPY requirements.txt ./
-
-# Install Python packages
+# Copy requirements and install Python packages
+COPY requirements.txt \
+     submodules/mytardis/requirements-base.txt \
+     submodules/mytardis/requirements-postgres.txt \
+     submodules/mytardis/requirements-ldap.txt \
+     ./
+COPY submodules/mytardis/tardis/apps/social_auth/requirements.txt ./requirements-auth.txt
+COPY submodules/mytardis-app-mydata/requirements.txt ./requirements-mydata.txt
 RUN cat requirements.txt \
     requirements-base.txt \
     requirements-postgres.txt \
     requirements-ldap.txt \
-    tardis/apps/social_auth/requirements.txt \
-    tardis/apps/mydata/requirements.txt \
+    requirements-auth.txt \
+    requirements-mydata.txt \
     > /tmp/requirements.txt && \
     # Display packages
     sort /tmp/requirements.txt && \
-    # Don't install repos in edit mode
-    sed -i 's/-e git+/git+/g' /tmp/requirements.txt && \
     pip install --no-cache-dir -q -r /tmp/requirements.txt
 
 # Install NodeJS packages
+COPY submodules/mytardis/package.json ./
+COPY submodules/mytardis/webpack.config.js ./
+COPY submodules/mytardis/assets/ assets/
 RUN npm install --production --no-cache --quiet --depth 0 && \
     npm run-script build --no-cache --quiet
 
 FROM build AS production
+
+# Copy app code
+COPY submodules/mytardis/ ./
+COPY submodules/mytardis-app-mydata/ tardis/apps/mydata/
 
 # Cleanup
 RUN rm -rf /app/node_modules && \
@@ -79,12 +79,15 @@ COPY settings.py ./tardis/
 COPY beat.py ./
 COPY entrypoint.sh ./
 
+RUN chown -R mytardis:mytardis /app
 USER mytardis
 EXPOSE 8000
 
 CMD ["sh", "entrypoint.sh"]
 
 FROM build AS test
+
+USER root
 
 # Add Chrome repo
 RUN curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
@@ -107,6 +110,9 @@ RUN CHROMEDRIVER_VERSION=`curl -sS https://chromedriver.storage.googleapis.com/L
     ln -fs /opt/chromedriver-$CHROMEDRIVER_VERSION/chromedriver /usr/local/bin/chromedriver
 
 # Install Python packages
+COPY submodules/mytardis/requirements-mysql.txt \
+     submodules/mytardis/requirements-test.txt \
+     ./
 RUN cat requirements-mysql.txt \
     requirements-test.txt \
     > /tmp/requirements.txt && \
@@ -117,6 +123,13 @@ RUN npm install --no-cache --quiet --depth 0
 
 # Create default storage
 RUN mkdir -p var/store
+
+# Copy app code
+COPY submodules/mytardis/ \
+     submodules/mytardis/.pylintrc \
+     submodules/mytardis/.eslintrc \
+     ./
+COPY submodules/mytardis-app-mydata/ tardis/apps/mydata/
 
 # This will keep container running...
 CMD ["tail", "-f", "/dev/null"]

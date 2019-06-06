@@ -1,0 +1,6 @@
+[submodule "submodules/mytardis"]
+	path = submodules/mytardis
+	url = git@github.com:mytardis/mytardis.git
+[submodule "submodules/mytardis-app-mydata"]
+	path = submodules/mytardis-app-mydata
+	url = git@github.com:mytardis/mytardis-app-mydata.git
