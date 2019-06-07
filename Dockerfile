@@ -3,7 +3,23 @@ FROM ubuntu:18.10 AS build
 ENV DEBIAN_FRONTEND noninteractive
 ENV PYTHONUNBUFFERED 1
 
-# Install runtime packages
+# Create runtime user
+RUN mkdir -p /app && \
+    groupadd -r -g 1001 mytardis && \
+    useradd -r -m -u 1001 -g 1001 mytardis
+
+WORKDIR /app
+
+# Copy Python requirements
+COPY requirements.txt \
+     submodules/mytardis/requirements-base.txt \
+     submodules/mytardis/requirements-postgres.txt \
+     submodules/mytardis/requirements-ldap.txt \
+     ./
+COPY submodules/mytardis/tardis/apps/social_auth/requirements.txt ./requirements-auth.txt
+COPY submodules/mytardis-app-mydata/requirements.txt ./requirements-mydata.txt
+
+# Install Python packages
 RUN apt-get -yqq update && \
     apt-get -yqq install --no-install-recommends \
         curl \
@@ -21,45 +37,39 @@ RUN apt-get -yqq update && \
         mc \
         ncdu \
         vim-tiny && \
-    pip install --no-cache-dir --upgrade pip
+    cat requirements.txt \
+        requirements-base.txt \
+        requirements-postgres.txt \
+        requirements-ldap.txt \
+        requirements-auth.txt \
+        requirements-mydata.txt \
+        > /tmp/requirements.txt && \
+    # pip install --no-cache-dir --upgrade pip && \
+    cat /tmp/requirements.txt | egrep -v '^\s*(#|$)' | sort && \
+    pip install --no-cache-dir -q -r /tmp/requirements.txt && \
+    apt-get -y remove --purge \
+        gcc \
+        git && \
+    apt-get -y autoremove && \
+    rm -rf /var/lib/apt/lists/*
 
-# Install NodeJS
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
-    apt-get -yqq update && \
-    apt-get -yqq install --no-install-recommends nodejs
-
-# Create runtime user
-RUN mkdir -p /app && \
-    groupadd -r -g 1001 mytardis && \
-    useradd -r -m -u 1001 -g 1001 mytardis
-
-WORKDIR /app
-
-# Copy requirements and install Python packages
-COPY requirements.txt \
-     submodules/mytardis/requirements-base.txt \
-     submodules/mytardis/requirements-postgres.txt \
-     submodules/mytardis/requirements-ldap.txt \
-     ./
-COPY submodules/mytardis/tardis/apps/social_auth/requirements.txt ./requirements-auth.txt
-COPY submodules/mytardis-app-mydata/requirements.txt ./requirements-mydata.txt
-RUN cat requirements.txt \
-    requirements-base.txt \
-    requirements-postgres.txt \
-    requirements-ldap.txt \
-    requirements-auth.txt \
-    requirements-mydata.txt \
-    > /tmp/requirements.txt && \
-    # Display packages
-    sort /tmp/requirements.txt && \
-    pip install --no-cache-dir -q -r /tmp/requirements.txt
-
-# Install NodeJS packages
+# Copy NodeJS requirements
 COPY submodules/mytardis/package.json ./
 COPY submodules/mytardis/webpack.config.js ./
 COPY submodules/mytardis/assets/ assets/
-RUN npm install --production --no-cache --quiet --depth 0 && \
-    npm run-script build --no-cache --quiet
+
+# Install NodeJS packages
+RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
+    apt-get -yqq update && \
+    apt-get -yqq install --no-install-recommends nodejs && \
+    npm install --production --no-cache --quiet --depth 0 && \
+    npm run-script build --no-cache --quiet && \
+    rm -rf /app/node_modules && \
+    rm -rf /app/false && \
+    apt-get -y remove --purge \
+        nodejs && \
+    apt-get -y autoremove && \
+    rm -rf /var/lib/apt/lists/*
 
 FROM build AS production
 
@@ -67,17 +77,11 @@ FROM build AS production
 COPY submodules/mytardis/ ./
 COPY submodules/mytardis-app-mydata/ tardis/apps/mydata/
 
-# Cleanup
-RUN rm -rf /app/node_modules && \
-    rm -rf /app/false && \
-    apt-get -y remove --purge \
-        gcc \
-        git
-
 # Copy k8s-related code
 COPY settings.py ./tardis/
 COPY beat.py ./
 COPY entrypoint.sh ./
+COPY version.txt ./
 
 RUN chown -R mytardis:mytardis /app
 USER mytardis
@@ -93,12 +97,26 @@ USER root
 RUN curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
     echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list
 
-# Install utilities
+# Copy Python packages
+COPY submodules/mytardis/requirements-mysql.txt \
+     submodules/mytardis/requirements-test.txt \
+     ./
+
+# Install Python packages and utilities
 RUN apt-get -yqq update && \
     apt-get -yqq install --no-install-recommends \
+        gcc \
         unzip \
         libmysqlclient-dev \
-        google-chrome-stable
+        google-chrome-stable && \
+    cat requirements-mysql.txt \
+        requirements-test.txt \
+        > /tmp/requirements.txt && \
+    pip install --no-cache-dir -q -r /tmp/requirements.txt && \
+    apt-get -y remove --purge \
+        gcc && \
+    apt-get -y autoremove && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install Chrome WebDriver
 RUN CHROMEDRIVER_VERSION=`curl -sS https://chromedriver.storage.googleapis.com/LATEST_RELEASE` && \
@@ -109,17 +127,16 @@ RUN CHROMEDRIVER_VERSION=`curl -sS https://chromedriver.storage.googleapis.com/L
     chmod +x /opt/chromedriver-$CHROMEDRIVER_VERSION/chromedriver && \
     ln -fs /opt/chromedriver-$CHROMEDRIVER_VERSION/chromedriver /usr/local/bin/chromedriver
 
-# Install Python packages
-COPY submodules/mytardis/requirements-mysql.txt \
-     submodules/mytardis/requirements-test.txt \
-     ./
-RUN cat requirements-mysql.txt \
-    requirements-test.txt \
-    > /tmp/requirements.txt && \
-    pip install --no-cache-dir -q -r /tmp/requirements.txt
-
 # Install NodeJS packages
-RUN npm install --no-cache --quiet --depth 0
+RUN apt-get -yqq update && \
+    apt-get -yqq install --no-install-recommends nodejs && \
+    npm install --no-cache --quiet --depth 0 && \
+    rm -rf /app/node_modules && \
+    rm -rf /app/false && \
+    apt-get -y remove --purge \
+        nodejs && \
+    apt-get -y autoremove && \
+    rm -rf /var/lib/apt/lists/*
 
 # Create default storage
 RUN mkdir -p var/store
