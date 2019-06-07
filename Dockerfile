@@ -1,5 +1,6 @@
 FROM ubuntu:18.10 AS build
 
+ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE DontWarn
 ENV DEBIAN_FRONTEND noninteractive
 ENV PYTHONUNBUFFERED 1
 
@@ -21,7 +22,7 @@ COPY submodules/mytardis-app-mydata/requirements.txt ./requirements-mydata.txt
 
 # Install Python packages
 RUN apt-get -yqq update && \
-    apt-get -yqq install --no-install-recommends \
+    apt-get -yqq install --no-install-recommends -o=Dpkg::Use-Pty=0 \
         curl \
         git \
         gcc \
@@ -36,7 +37,8 @@ RUN apt-get -yqq update && \
         libxi6 \
         mc \
         ncdu \
-        vim-tiny && \
+        vim-tiny \
+    > /dev/null 2>&1 && \
     cat requirements.txt \
         requirements-base.txt \
         requirements-postgres.txt \
@@ -44,14 +46,13 @@ RUN apt-get -yqq update && \
         requirements-auth.txt \
         requirements-mydata.txt \
         > /tmp/requirements.txt && \
-    # pip install --no-cache-dir --upgrade pip && \
     cat /tmp/requirements.txt | egrep -v '^\s*(#|$)' | sort && \
     pip install --no-cache-dir -q -r /tmp/requirements.txt && \
     apt-get -y remove --purge \
         gcc \
         git && \
     apt-get -y autoremove && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Copy NodeJS requirements
 COPY submodules/mytardis/package.json ./
@@ -61,7 +62,9 @@ COPY submodules/mytardis/assets/ assets/
 # Install NodeJS packages
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
     apt-get -yqq update && \
-    apt-get -yqq install --no-install-recommends nodejs && \
+    apt-get -yqq install --no-install-recommends -o=Dpkg::Use-Pty=0 \
+        nodejs \
+    > /dev/null 2>&1 && \
     npm install --production --no-cache --quiet --depth 0 && \
     npm run-script build --no-cache --quiet && \
     rm -rf /app/node_modules && \
@@ -69,7 +72,7 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
     apt-get -y remove --purge \
         nodejs && \
     apt-get -y autoremove && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 FROM build AS production
 
@@ -94,7 +97,7 @@ FROM build AS test
 USER root
 
 # Add Chrome repo
-RUN curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
+RUN curl -sS -o - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - && \
     echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list
 
 # Copy Python packages
@@ -104,11 +107,12 @@ COPY submodules/mytardis/requirements-mysql.txt \
 
 # Install Python packages and utilities
 RUN apt-get -yqq update && \
-    apt-get -yqq install --no-install-recommends \
+    apt-get -yqq install --no-install-recommends -o=Dpkg::Use-Pty=0 \
+        google-chrome-stable \
         gcc \
         unzip \
         libmysqlclient-dev \
-        google-chrome-stable && \
+    > /dev/null 2>&1 && \
     cat requirements-mysql.txt \
         requirements-test.txt \
         > /tmp/requirements.txt && \
@@ -116,7 +120,7 @@ RUN apt-get -yqq update && \
     apt-get -y remove --purge \
         gcc && \
     apt-get -y autoremove && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install Chrome WebDriver
 RUN CHROMEDRIVER_VERSION=`curl -sS https://chromedriver.storage.googleapis.com/LATEST_RELEASE` && \
@@ -129,14 +133,14 @@ RUN CHROMEDRIVER_VERSION=`curl -sS https://chromedriver.storage.googleapis.com/L
 
 # Install NodeJS packages
 RUN apt-get -yqq update && \
-    apt-get -yqq install --no-install-recommends nodejs && \
+    apt-get -yqq install --no-install-recommends -o=Dpkg::Use-Pty=0 \
+        nodejs \
+    > /dev/null 2>&1 && \
     npm install --no-cache --quiet --depth 0 && \
-    rm -rf /app/node_modules && \
-    rm -rf /app/false && \
     apt-get -y remove --purge \
-        nodejs && \
+        gcc && \
     apt-get -y autoremove && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Create default storage
 RUN mkdir -p var/store
