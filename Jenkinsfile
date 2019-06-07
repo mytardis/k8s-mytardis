@@ -62,6 +62,7 @@ podTemplate(
         }
         dockerImageTag = sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%h"').trim()
         dockerImageFullNameTag = "${dockerHubAccount}/${dockerImageName}:${dockerImageTag}"
+        writeFile file: 'version.txt', text: dockerImageTag
         stage('Build image for tests') {
             container('docker') {
                 sh("docker build . --tag ${dockerImageFullNameTag} --target=test")
