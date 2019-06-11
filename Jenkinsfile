@@ -66,7 +66,7 @@ podTemplate(
             def gitInfo = [
                 'commit_id': sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%H"').trim(),
                 'date': sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%cd" --date=rfc').trim(),
-                'branch': sh(returnStdout: true, script: 'git rev-parse --abbrev-ref HEAD').trim()
+                'branch': sh(returnStdout: true, script: 'git rev-parse --abbrev-ref HEAD').trim(),
                 'tag': ''
             ]
             try {
