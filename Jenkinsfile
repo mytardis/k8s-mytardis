@@ -62,7 +62,16 @@ podTemplate(
         }
         dockerImageTag = sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%h"').trim()
         dockerImageFullNameTag = "${dockerHubAccount}/${dockerImageName}:${dockerImageTag}"
-        writeFile file: 'version.txt', text: dockerImageTag
+        dir('submobules/mytardis') {
+            def gitInfo = [
+                'commit_id': sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%H"').trim(),
+                'date': sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%cd" --date=rfc').trim(),
+                'branch': sh(returnStdout: true, script: 'git rev-parse --abbrev-ref HEAD').trim(),
+                'tag': sh(returnStdout: true, script: 'git describe --abbrev=0 --tags').trim()
+            ]
+        }
+        def gitVersion = '{\\"data\\":{\\"version\\":{\\"' + gitInfo.inspect() + '\\"}}}'
+        echo "gitVersion: ${gitVersion}"
         stage('Build image for tests') {
             container('docker') {
                 sh("docker build . --tag ${dockerImageFullNameTag} --target=test")
@@ -105,6 +114,7 @@ podTemplate(
                     sh("kubectl create -f jobs/${item}.yaml")
                     sh("kubectl -n ${k8sDeploymentNamespace} wait --for=condition=complete --timeout=240s job/${item}")
                 }
+                sh("kubectl -n ${k8sDeploymentNamespace} patch configmap/version -p \"" + gitVersion.replace('"', '\"') + "\"")
                 ['mytardis', 'sftp', 'celery-worker', 'celery-beat'].each { item ->
                     sh("kubectl -n ${k8sDeploymentNamespace} set image deployment/${item} ${item}=${dockerImageFullNameTag}")
                 }

@@ -84,7 +84,6 @@ COPY submodules/mytardis-app-mydata/ tardis/apps/mydata/
 COPY settings.py ./tardis/
 COPY beat.py ./
 COPY entrypoint.sh ./
-COPY version.txt ./
 
 RUN chown -R mytardis:mytardis /app
 USER mytardis
