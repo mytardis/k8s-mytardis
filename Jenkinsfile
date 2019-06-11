@@ -71,7 +71,7 @@ podTemplate(
             ]
             try {
                 gitInfo['tag'] = sh(returnStdout: true, script: 'git describe --abbrev=0 --tags').trim()
-            } catch(ExceptionName e) {}
+            } catch(Exception e) {}
         }
         def gitVersion = '{\\"data\\":{\\"version\\":{\\"' + gitInfo.inspect() + '\\"}}}'
         echo "gitVersion: ${gitVersion}"
