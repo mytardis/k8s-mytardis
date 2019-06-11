@@ -75,7 +75,7 @@ podTemplate(
                 gitInfo['tag'] = sh(returnStdout: true, script: 'git describe --abbrev=0 --tags').trim()
             } catch(Exception e) {}
         }
-        gitVersion = '{\\"data\\":{\\"version\\":\\"' + gitInfo.inspect().replace("'", '\\\\"').replace('[', '{').replace(']', '}') + '\\"}}'
+        gitVersion = '{\\"data\\":{\\"version\\":\\"' + gitInfo.inspect().replace("'", '\\\\""').replace('[', '{').replace(']', '}') + '\\"}}'
         echo "gitVersion: ${gitVersion}"
         stage('Patch configMap') {
             container('kubectl') {
