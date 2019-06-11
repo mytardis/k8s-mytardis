@@ -1,6 +1,7 @@
 import os
 import urllib
 import yaml
+import json
 from .default_settings import *
 
 settings_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)),
