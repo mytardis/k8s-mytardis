@@ -5,6 +5,8 @@ def dockerImageTag = ''
 def dockerImageFullNameTag = ''
 def dockerImageFullNameLatest = "${dockerHubAccount}/${dockerImageName}:latest"
 def k8sDeploymentNamespace = 'mytardis'
+def gitInfo = ''
+def gitVersion = ''
 
 podTemplate(
     label: workerLabel,
@@ -63,7 +65,7 @@ podTemplate(
         dockerImageTag = sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%h"').trim()
         dockerImageFullNameTag = "${dockerHubAccount}/${dockerImageName}:${dockerImageTag}"
         dir('submobules/mytardis') {
-            def gitInfo = [
+            gitInfo = [
                 'commit_id': sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%H"').trim(),
                 'date': sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%cd" --date=rfc').trim(),
                 'branch': sh(returnStdout: true, script: 'git rev-parse --abbrev-ref HEAD').trim(),
@@ -73,7 +75,7 @@ podTemplate(
                 gitInfo['tag'] = sh(returnStdout: true, script: 'git describe --abbrev=0 --tags').trim()
             } catch(Exception e) {}
         }
-        def gitVersion = '{\\"data\\":{\\"version\\":{\\"' + gitInfo.inspect() + '\\"}}}'
+        gitVersion = '{\\"data\\":{\\"version\\":{\\"' + gitInfo.inspect() + '\\"}}}'
         echo "gitVersion: ${gitVersion}"
         stage('Build image for tests') {
             container('docker') {
