@@ -75,7 +75,7 @@ podTemplate(
                 gitInfo['tag'] = sh(returnStdout: true, script: 'git describe --abbrev=0 --tags').trim()
             } catch(Exception e) {}
         }
-        gitVersion = '{\\"data\\":{\\"version\\":{\\"' + gitInfo.inspect() + '\\"}}}'
+        gitVersion = '{\\"data\\":{\\"version\\":\\"' + gitInfo.inspect().replace("'", '"').replace('[', '{').replace(']', '}') + '\\"}}'
         echo "gitVersion: ${gitVersion}"
         stage('Build image for tests') {
             container('docker') {
@@ -99,7 +99,7 @@ podTemplate(
                 }
             }
         }
-        parallel tests
+        // parallel tests
         stage('Build image for production') {
             container('docker') {
                 sh("docker build . --tag ${dockerImageFullNameTag} --target=production")
@@ -127,3 +127,5 @@ podTemplate(
         }
     }
 }
+
+kubectl -n mytardis patch configmap/version -p '{"data":{"version":"{\"commit_id\":\"34075ce4d7692689337f74e595ff743a5980e78c\", \"date\":\"Tue, 11 Jun 2019 11:58:47 +1000\", \"branch\":\"HEAD\", \"tag\":\"\"}"}}'

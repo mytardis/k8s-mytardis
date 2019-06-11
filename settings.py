@@ -137,3 +137,8 @@ if 'login_views' in data:
 # Add arbitrary string attributes as defined in settings.yaml:
 for name, value in data.get('other_settings', {}).items():
     globals()[name] = value
+
+# Git version info (passed via env variable in JSON format)
+ver = os.environ.get('MYTARDIS_VERSION', '')
+if len(ver):
+    MYTARDIS_VERSION = json.loads(ver)
