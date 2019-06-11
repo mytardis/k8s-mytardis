@@ -127,5 +127,3 @@ podTemplate(
         }
     }
 }
-
-kubectl -n mytardis patch configmap/version -p '{"data":{"version":"{\"commit_id\":\"34075ce4d7692689337f74e595ff743a5980e78c\", \"date\":\"Tue, 11 Jun 2019 11:58:47 +1000\", \"branch\":\"HEAD\", \"tag\":\"\"}"}}'
