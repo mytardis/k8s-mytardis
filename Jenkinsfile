@@ -73,7 +73,9 @@ podTemplate(
             ]
             try {
                 gitInfo['tag'] = sh(returnStdout: true, script: 'git describe --abbrev=0 --tags').trim()
-            } catch(Exception e) {}
+            } catch(Exception e) {
+                gitInfo['tag'] = sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%h"').trim()
+            }
         }
         stage('Build image for tests') {
             container('docker') {
