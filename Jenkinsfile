@@ -6,7 +6,6 @@ def dockerImageFullNameTag = ''
 def dockerImageFullNameLatest = "${dockerHubAccount}/${dockerImageName}:latest"
 def k8sDeploymentNamespace = 'mytardis'
 def gitInfo = ''
-def gitVersion = ''
 
 podTemplate(
     label: workerLabel,
@@ -60,6 +59,7 @@ podTemplate(
         def ip = sh(returnStdout: true, script: 'hostname -i').trim()
         stage('Clone repository') {
             checkout scm
+            // git url: 'https://github.com/mytardis/k8s-mytardis', branch: 'master'
             sh("git submodule update --init --recursive")
         }
         dockerImageTag = sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%h"').trim()
@@ -74,13 +74,6 @@ podTemplate(
             try {
                 gitInfo['tag'] = sh(returnStdout: true, script: 'git describe --abbrev=0 --tags').trim()
             } catch(Exception e) {}
-        }
-        gitVersion = '{\\"data\\":{\\"version\\":\\"' + gitInfo.inspect().replace("'", '\\\"').replace('[', '{').replace(']', '}') + '\\"}}'
-        echo "gitVersion: ${gitVersion}"
-        stage('Patch configMap') {
-            container('kubectl') {
-                sh("kubectl -n ${k8sDeploymentNamespace} patch configmap/version -p \"" + gitVersion.replace('"', '\\"') + "\"")
-            }
         }
         stage('Build image for tests') {
             container('docker') {
@@ -124,7 +117,9 @@ podTemplate(
                     sh("kubectl create -f jobs/${item}.yaml")
                     sh("kubectl -n ${k8sDeploymentNamespace} wait --for=condition=complete --timeout=240s job/${item}")
                 }
-                sh("kubectl -n ${k8sDeploymentNamespace} patch configmap/version -p \"" + gitVersion.replace('"', '\"') + "\"")
+                def patch = '{"data":{"version":"' + gitInfo.inspect().replace('[', '{').replace(']', '}') + '"}}'
+                echo "patch: ${patch}"
+                sh("kubectl -n ${k8sDeploymentNamespace} patch configmap/version -p '" + patch.replace("'", '\\"') + "'")
                 ['mytardis', 'sftp', 'celery-worker', 'celery-beat'].each { item ->
                     sh("kubectl -n ${k8sDeploymentNamespace} set image deployment/${item} ${item}=${dockerImageFullNameTag}")
                 }
