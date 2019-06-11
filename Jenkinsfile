@@ -79,7 +79,7 @@ podTemplate(
         echo "gitVersion: ${gitVersion}"
         stage('Patch configMap') {
             container('kubectl') {
-                sh("kubectl -n ${k8sDeploymentNamespace} patch configmap/version -p \"" + gitVersion.replace('"', '\"') + "\"")
+                sh("kubectl -n ${k8sDeploymentNamespace} patch configmap/version -p \"" + gitVersion.replace('"', '\\"') + "\"")
             }
         }
         stage('Build image for tests') {
