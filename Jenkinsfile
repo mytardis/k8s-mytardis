@@ -1,6 +1,6 @@
-def workerLabel = 'mytardis'
+def workerLabel = 'mytardis-qat'
 def dockerHubAccount = 'mytardis'
-def dockerImageName = 'k8s-mytardis'
+def dockerImageName = 'k8s-mytardis-qat'
 def dockerImageTag = ''
 def dockerImageFullNameTag = ''
 def dockerImageFullNameLatest = "${dockerHubAccount}/${dockerImageName}:latest"
@@ -50,7 +50,7 @@ podTemplate(
         )
     ],
     volumes: [
-        secretVolume(secretName: 'kube-config-test', mountPath: '/tmp/kube'),
+        secretVolume(secretName: 'kube-config-qat', mountPath: '/tmp/kube'),
         secretVolume(secretName: 'docker-config', mountPath: '/tmp/docker'),
         hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')
     ]
