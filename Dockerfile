@@ -58,6 +58,7 @@ RUN apt-get -yqq update && \
 COPY submodules/mytardis/package.json ./
 COPY submodules/mytardis/webpack.config.js ./
 COPY submodules/mytardis/assets/ assets/
+COPY submodules/mytardis/.babelrc ./
 
 # Install NodeJS packages
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
