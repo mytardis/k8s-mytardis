@@ -3,7 +3,6 @@ def dockerHubAccount = 'mytardis'
 def dockerImageName = 'k8s-mytardis-demo'
 def dockerImageTag = ''
 def dockerImageFullNameTag = ''
-def dockerImageFullNameLatest = "${dockerHubAccount}/${dockerImageName}:latest"
 def k8sDeploymentNamespace = 'mytardis'
 def gitInfo = ''
 
@@ -113,8 +112,6 @@ podTemplate(
         stage('Push image to DockerHub') {
             container('docker') {
                 sh("docker push ${dockerImageFullNameTag}")
-                sh("docker tag ${dockerImageFullNameTag} ${dockerImageFullNameLatest}")
-                sh("docker push ${dockerImageFullNameLatest}")
             }
         }
         stage('Deploy image to Kubernetes') {
@@ -130,7 +127,7 @@ podTemplate(
                 def patch = '{"data":{"version":"' + gitInfo.inspect().replace('[', '{').replace(']', '}') + '"}}'
                 echo "patch: ${patch}"
                 sh("kubectl -n ${k8sDeploymentNamespace} patch configmap/version -p '" + patch.replace("'", '\\"') + "'")
-                ['mytardis', 'sftp', 'celery-worker', 'celery-beat'].each { item ->
+                ['mytardis', 'celery-worker', 'celery-beat'].each { item ->
                     sh("kubectl -n ${k8sDeploymentNamespace} set image deployment/${item} ${item}=${dockerImageFullNameTag}")
                 }
             }
