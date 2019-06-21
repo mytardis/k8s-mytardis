@@ -3,7 +3,6 @@ def dockerHubAccount = 'mytardis'
 def dockerImageName = 'k8s-mytardis-qat'
 def dockerImageTag = ''
 def dockerImageFullNameTag = ''
-def dockerImageFullNameLatest = "${dockerHubAccount}/${dockerImageName}:latest"
 def k8sDeploymentNamespace = 'mytardis'
 def gitInfo = ''
 
@@ -113,8 +112,6 @@ podTemplate(
         stage('Push image to DockerHub') {
             container('docker') {
                 sh("docker push ${dockerImageFullNameTag}")
-                sh("docker tag ${dockerImageFullNameTag} ${dockerImageFullNameLatest}")
-                sh("docker push ${dockerImageFullNameLatest}")
             }
         }
         stage('Deploy image to Kubernetes') {
