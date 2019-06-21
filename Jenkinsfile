@@ -7,6 +7,11 @@ def dockerImageFullNameLatest = "${dockerHubAccount}/${dockerImageName}:latest"
 def k8sDeploymentNamespace = 'mytardis'
 def gitInfo = ''
 
+def updateProperty(property, value, file) {
+    escapedProperty = property.replace('[', '\\[').replace(']', '\\]').replace('.', '\\.')
+    sh("sed -i 's|$escapedProperty|$value|g' $file")
+}
+
 podTemplate(
     label: workerLabel,
     serviceAccount: 'jenkins',
@@ -115,6 +120,7 @@ podTemplate(
         stage('Deploy image to Kubernetes') {
             container('kubectl') {
                 ['migrate', 'collectstatic'].each { item ->
+                    updateProperty(":[dockerImageFullNameTag]", dockerImageFullNameTag, "job/${item}")
                     sh("kubectl -n ${k8sDeploymentNamespace} delete job/${item} --ignore-not-found")
                     sh("kubectl create -f jobs/${item}.yaml")
                     sh("kubectl -n ${k8sDeploymentNamespace} wait --for=condition=complete --timeout=240s job/${item}")
