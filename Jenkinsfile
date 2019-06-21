@@ -119,11 +119,13 @@ podTemplate(
         }
         stage('Deploy image to Kubernetes') {
             container('kubectl') {
-                ['migrate', 'collectstatic'].each { item ->
-                    updateProperty(":[dockerImageFullNameTag]", dockerImageFullNameTag, "job/${item}.yaml")
-                    sh("kubectl -n ${k8sDeploymentNamespace} delete job/${item} --ignore-not-found")
-                    sh("kubectl create -f jobs/${item}.yaml")
-                    sh("kubectl -n ${k8sDeploymentNamespace} wait --for=condition=complete --timeout=240s job/${item}")
+                dir('jobs') {
+                    ['migrate', 'collectstatic'].each { item ->
+                        updateProperty(":[dockerImageFullNameTag]", dockerImageFullNameTag, "${item}.yaml")
+                        sh("kubectl -n ${k8sDeploymentNamespace} delete job/${item} --ignore-not-found")
+                        sh("kubectl create -f ${item}.yaml")
+                        sh("kubectl -n ${k8sDeploymentNamespace} wait --for=condition=complete --timeout=240s job/${item}")
+                    }
                 }
                 def patch = '{"data":{"version":"' + gitInfo.inspect().replace('[', '{').replace(']', '}') + '"}}'
                 echo "patch: ${patch}"
