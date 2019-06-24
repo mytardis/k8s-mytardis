@@ -10,7 +10,7 @@ spec:
     spec:
       containers:
       - name: go
-        image: mytardis/k8s-mytardis:latest
+        image: :[dockerImageFullNameTag]
         command: ["/bin/sh", "-c", "python manage.py migrate"]
         volumeMounts:
           - name: settings
