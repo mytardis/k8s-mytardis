@@ -85,6 +85,10 @@ COPY settings.py ./tardis/
 COPY beat.py ./
 COPY entrypoint.sh ./
 
+# Create default storage
+RUN mkdir -p var/store
+RUN chown -R mytardis:mytardis /var/store
+
 RUN chown -R mytardis:mytardis /app
 USER mytardis
 EXPOSE 8000
@@ -140,9 +144,6 @@ RUN apt-get -yqq update && \
         gcc && \
     apt-get -y autoremove && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-# Create default storage
-RUN mkdir -p var/store
 
 # Copy app code
 COPY submodules/mytardis/ \
