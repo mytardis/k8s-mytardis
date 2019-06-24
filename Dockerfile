@@ -86,7 +86,7 @@ COPY beat.py ./
 COPY entrypoint.sh ./
 
 # Create default storage
-RUN mkdir -p var/store
+RUN mkdir -p /var/store
 RUN chown -R mytardis:mytardis /var/store
 
 RUN chown -R mytardis:mytardis /app
