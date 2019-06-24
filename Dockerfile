@@ -74,6 +74,10 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
     apt-get -y autoremove && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+# Create default storage
+RUN mkdir -p /var/store
+RUN chown -R mytardis:mytardis /var/store
+
 FROM build AS production
 
 # Copy app code
@@ -84,10 +88,6 @@ COPY submodules/mytardis-app-mydata/ tardis/apps/mydata/
 COPY settings.py ./tardis/
 COPY beat.py ./
 COPY entrypoint.sh ./
-
-# Create default storage
-RUN mkdir -p /var/store
-RUN chown -R mytardis:mytardis /var/store
 
 RUN chown -R mytardis:mytardis /app
 USER mytardis
