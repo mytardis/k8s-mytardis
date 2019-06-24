@@ -90,14 +90,11 @@ RUN mkdir -p /var/store
 RUN chown -R mytardis:mytardis /var/store
 
 RUN chown -R mytardis:mytardis /app
-USER mytardis
 EXPOSE 8000
 
 CMD ["sh", "entrypoint.sh"]
 
 FROM build AS test
-
-USER root
 
 # Add Chrome repo
 RUN curl -sS -o - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - && \
