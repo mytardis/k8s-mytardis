@@ -1,6 +1,7 @@
 [submodule "submodules/mytardis"]
     path = submodules/mytardis
-    url = https://github.com/mytardis/mytardis.git
+    url = https://github.com/manishkumr/mytardis.git
+    branch = feature_search_improvements
 [submodule "submodules/mytardis-app-mydata"]
     path = submodules/mytardis-app-mydata
     url = https://github.com/mytardis/mytardis-app-mydata.git
