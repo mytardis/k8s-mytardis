@@ -4,11 +4,6 @@ ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE DontWarn
 ENV DEBIAN_FRONTEND noninteractive
 ENV PYTHONUNBUFFERED 1
 
-# Create runtime user
-RUN mkdir -p /app && \
-    groupadd -r -g 1001 mytardis && \
-    useradd -r -m -u 1001 -g 1001 mytardis
-
 WORKDIR /app
 
 # Copy Python requirements
@@ -85,11 +80,6 @@ COPY settings.py ./tardis/
 COPY beat.py ./
 COPY entrypoint.sh ./
 
-# Create default storage
-RUN mkdir -p /var/store
-RUN chown -R mytardis:mytardis /var/store
-
-RUN chown -R mytardis:mytardis /app
 EXPOSE 8000
 
 CMD ["sh", "entrypoint.sh"]
