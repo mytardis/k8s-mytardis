@@ -1,0 +1,22 @@
+apiVersion: batch/v1 kind: Job metadata:
+  name: create-es-index
+  namespace: mytardis spec:
+  completions: 1
+  parallelism: 1
+  template:
+    spec:
+      containers:
+      - name: go
+        image: mytardis/k8s-mytardis:latest
+        imagePullPolicy: Always
+        command: ["/bin/sh", "-c", "python manage.py search_index -f --rebuild"]
+        volumeMounts:
+          - name: settings
+            mountPath: /app/tardis/settings.yaml
+            subPath: settings.yaml
+      restartPolicy: Never
+      volumes:
+      - name: settings
+        configMap:
+          name: mytardis
+
