@@ -1,11 +1,16 @@
-def workerLabel = 'mytardis'
+def branchName = 'test'
+def workerLabel = 'mytardis-${branchName}'
 def dockerHubAccount = 'mytardis'
-def dockerImageName = 'k8s-mytardis'
+def dockerImageName = 'k8s-mytardis-${branchName}'
 def dockerImageTag = ''
 def dockerImageFullNameTag = ''
-def dockerImageFullNameLatest = "${dockerHubAccount}/${dockerImageName}:latest"
 def k8sDeploymentNamespace = 'mytardis'
 def gitInfo = ''
+
+def updateProperty(property, value, file) {
+    escapedProperty = property.replace('[', '\\[').replace(']', '\\]').replace('.', '\\.')
+    sh("sed -i 's|$escapedProperty|$value|g' $file")
+}
 
 podTemplate(
     label: workerLabel,
@@ -50,7 +55,7 @@ podTemplate(
         )
     ],
     volumes: [
-        secretVolume(secretName: 'kube-config-test', mountPath: '/tmp/kube'),
+        secretVolume(secretName: 'kube-config-${branchName}', mountPath: '/tmp/kube'),
         secretVolume(secretName: 'docker-config', mountPath: '/tmp/docker'),
         hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')
     ]
@@ -108,16 +113,17 @@ podTemplate(
         stage('Push image to DockerHub') {
             container('docker') {
                 sh("docker push ${dockerImageFullNameTag}")
-                sh("docker tag ${dockerImageFullNameTag} ${dockerImageFullNameLatest}")
-                sh("docker push ${dockerImageFullNameLatest}")
             }
         }
         stage('Deploy image to Kubernetes') {
             container('kubectl') {
-                ['migrate', 'collectstatic'].each { item ->
-                    sh("kubectl -n ${k8sDeploymentNamespace} delete job/${item} --ignore-not-found")
-                    sh("kubectl create -f jobs/${item}.yaml")
-                    sh("kubectl -n ${k8sDeploymentNamespace} wait --for=condition=complete --timeout=240s job/${item}")
+                dir('jobs') {
+                    ['migrate', 'collectstatic'].each { item ->
+                        updateProperty(":[dockerImageFullNameTag]", dockerImageFullNameTag, "${item}.yaml")
+                        sh("kubectl -n ${k8sDeploymentNamespace} delete job/${item} --ignore-not-found")
+                        sh("kubectl create -f ${item}.yaml")
+                        sh("kubectl -n ${k8sDeploymentNamespace} wait --for=condition=complete --timeout=240s job/${item}")
+                    }
                 }
                 def patch = '{"data":{"version":"' + gitInfo.inspect().replace('[', '{').replace(']', '}') + '"}}'
                 echo "patch: ${patch}"
