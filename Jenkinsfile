@@ -1,7 +1,7 @@
 def branchName = 'test'
-def workerLabel = 'mytardis-${branchName}'
+def workerLabel = "mytardis-${branchName}"
 def dockerHubAccount = 'mytardis'
-def dockerImageName = 'k8s-mytardis-${branchName}'
+def dockerImageName = "k8s-mytardis-${branchName}"
 def dockerImageTag = ''
 def dockerImageFullNameTag = ''
 def k8sDeploymentNamespace = 'mytardis'
@@ -55,7 +55,7 @@ podTemplate(
         )
     ],
     volumes: [
-        secretVolume(secretName: 'kube-config-${branchName}', mountPath: '/tmp/kube'),
+        secretVolume(secretName: "kube-config-${branchName}", mountPath: '/tmp/kube'),
         secretVolume(secretName: 'docker-config', mountPath: '/tmp/docker'),
         hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')
     ]
@@ -64,7 +64,6 @@ podTemplate(
         def ip = sh(returnStdout: true, script: 'hostname -i').trim()
         stage('Clone repository') {
             checkout scm
-            // git url: 'https://github.com/mytardis/k8s-mytardis', branch: 'master'
             sh("git submodule update --init --recursive")
         }
         dockerImageTag = sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%h"').trim()
