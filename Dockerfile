@@ -80,6 +80,7 @@ FROM build AS production
 # Copy app code
 COPY submodules/mytardis/ ./
 COPY submodules/mytardis-app-mydata/ tardis/apps/mydata/
+COPY submodules/mytardis-app-driving/ tardis/apps/driving/
 
 # Copy k8s-related code
 COPY settings.py ./tardis/
@@ -151,6 +152,7 @@ COPY submodules/mytardis/ \
      submodules/mytardis/.eslintrc \
      ./
 COPY submodules/mytardis-app-mydata/ tardis/apps/mydata/
+COPY submodules/mytardis-app-driving/ tardis/apps/driving/
 
 # This will keep container running...
 CMD ["tail", "-f", "/dev/null"]
