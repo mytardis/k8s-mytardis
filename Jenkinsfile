@@ -1,6 +1,7 @@
-def workerLabel = 'mytardis-qat'
+def stackName = 'prod'
+def workerLabel = "mytardis-${stackName}"
 def dockerHubAccount = 'mytardis'
-def dockerImageName = 'k8s-mytardis-qat'
+def dockerImageName = "k8s-mytardis-${stackName}"
 def dockerImageTag = ''
 def dockerImageFullNameTag = ''
 def k8sDeploymentNamespace = 'mytardis'
@@ -54,7 +55,7 @@ podTemplate(
         )
     ],
     volumes: [
-        secretVolume(secretName: 'kube-config-qat', mountPath: '/tmp/kube'),
+        secretVolume(secretName: "kube-config-${stackName}", mountPath: '/tmp/kube'),
         secretVolume(secretName: 'docker-config', mountPath: '/tmp/docker'),
         hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')
     ]
