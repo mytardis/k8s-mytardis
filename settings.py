@@ -2,6 +2,10 @@ import os
 import urllib
 import yaml
 import json
+
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
 from .default_settings import *
 
 settings_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -143,3 +147,9 @@ for name, value in data.get('other_settings', {}).items():
 ver = os.environ.get('MYTARDIS_VERSION', '')
 if len(ver):
     MYTARDIS_VERSION = json.loads(ver)
+
+if 'sentry_dsn' in data:
+    sentry_sdk.init(
+        dsn=data.get('sentry_dsn'),
+        integrations=[DjangoIntegration()]
+    )
