@@ -85,6 +85,12 @@ LOGGING = {
             'handlers': ['console', 'syslog'],
             'level': 'ERROR'
         },
+        # Redefining the logger for the `django` module
+        # prevents invoking the `AdminEmailHandler`
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO'
+        }
     }
 }
 
