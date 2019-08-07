@@ -68,7 +68,7 @@ podTemplate(
         }
         dockerImageTag = sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%h"').trim()
         dockerImageFullNameTag = "${dockerHubAccount}/${dockerImageName}:${dockerImageTag}"
-        dir('submobules/mytardis') {
+        dir('submodules/mytardis') {
             gitInfo = [
                 'commit_id': sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%H"').trim(),
                 'date': sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%cd" --date=rfc').trim(),
