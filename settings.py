@@ -2,6 +2,7 @@ import os
 import urllib
 import yaml
 import json
+from datetime import timedelta
 
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
@@ -159,3 +160,19 @@ if 'sentry_dsn' in data:
         dsn=data.get('sentry_dsn'),
         integrations=[DjangoIntegration()]
     )
+
+CELERYBEAT_SCHEDULE = {}
+for name, params in data.get('celerybeat_schedule', {}).items():
+    CELERYBEAT_SCHEDULE[name] = {
+        'task': params['task'],
+        'schedule': timedelta(
+            days=params['schedule'].get('days', 0),
+            seconds=params['schedule'].get('seconds', 0),
+            microseconds=params['schedule'].get('microseconds', 0),
+            milliseconds=params['schedule'].get('milliseconds', 0),
+            minutes=params['schedule'].get('minutes', 0),
+            hours=params['schedule'].get('hours', 0),
+            weeks=params['schedule'].get('weeks', 0)
+        ),
+        'kwargs': params.get('kwargs', {'priority': DEFAULT_TASK_PRIORITY})
+    }
