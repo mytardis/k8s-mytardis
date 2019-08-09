@@ -37,6 +37,7 @@ RUN apt-get -yqq update && \
         libxi6 \
         mc \
         ncdu \
+        tzdata \
         vim-tiny \
     > /dev/null 2>&1 && \
     cat requirements.txt \
