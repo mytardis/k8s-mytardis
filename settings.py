@@ -24,7 +24,8 @@ DATABASES['default'] = {
     'PORT': data['postgres']['port'],
     'USER': data['postgres']['user'],
     'PASSWORD': data['postgres']['password'],
-    'NAME': data['postgres']['name']
+    'NAME': data['postgres']['name'],
+    'CONN_MAX_AGE': data['postgres'].get('conn_max_age')  # None means re-use connections
 }
 
 CELERY_RESULT_BACKEND = 'amqp'
