@@ -35,6 +35,7 @@ RUN apt-get -yqq update && \
         libmagickwand-dev \
         libglu1-mesa-dev \
         libxi6 \
+        lsof \
         mc \
         ncdu \
         tzdata \
