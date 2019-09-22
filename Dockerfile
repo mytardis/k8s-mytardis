@@ -21,14 +21,15 @@ COPY submodules/mytardis/tardis/apps/social_auth/requirements.txt ./requirements
 COPY submodules/mytardis-app-mydata/requirements.txt ./requirements-mydata.txt
 
 # Install Python packages
-RUN apt-get -yqq update && \
+RUN sed -i 's/archive/au.archive/g' /etc/apt/sources.list && \
+    apt-get -yqq update && \
     apt-get -yqq install --no-install-recommends -o=Dpkg::Use-Pty=0 \
         curl \
         git \
         gcc \
-        python-pip \
-        python-dev \
-        python-setuptools \
+        python3-pip \
+        python3-dev \
+        python3-setuptools \
         libldap2-dev \
         libsasl2-dev \
         libmagic-dev \
@@ -47,7 +48,7 @@ RUN apt-get -yqq update && \
         requirements-mydata.txt \
         > /tmp/requirements.txt && \
     cat /tmp/requirements.txt | egrep -v '^\s*(#|$)' | sort && \
-    pip install --no-cache-dir -q -r /tmp/requirements.txt && \
+    pip3 install --no-cache-dir -r /tmp/requirements.txt && \
     apt-get -y remove --purge \
         gcc \
         git && \
@@ -116,7 +117,7 @@ RUN apt-get -yqq update && \
     cat requirements-mysql.txt \
         requirements-test.txt \
         > /tmp/requirements.txt && \
-    pip install --no-cache-dir -q -r /tmp/requirements.txt && \
+    pip3 install --no-cache-dir -r /tmp/requirements.txt && \
     apt-get -y remove --purge \
         gcc && \
     apt-get -y autoremove && \
