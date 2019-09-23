@@ -2,8 +2,6 @@ import os
 import yaml
 import json
 
-from six.moves.urllib.parse import quote_plus
-
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -32,7 +30,7 @@ if os.path.isfile(settings_filename):
         'host': data['rabbitmq']['host'],
         'port': data['rabbitmq']['port'],
         'user': data['rabbitmq']['user'],
-        'password': quote_plus(data['rabbitmq']['password'],),
+        'password': data['rabbitmq']['password'],
         'vhost': data['rabbitmq']['vhost']
     }
 
