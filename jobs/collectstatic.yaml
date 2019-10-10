@@ -11,7 +11,7 @@ spec:
       containers:
       - name: go
         image: :[dockerImageFullNameTag]
-        command: ["/bin/sh", "-c", "python manage.py collectstatic --noinput"]
+        command: ["/bin/sh", "-c", "python3 manage.py collectstatic --noinput"]
         volumeMounts:
           - name: settings
             mountPath: /app/tardis/settings.yaml

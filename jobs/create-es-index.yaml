@@ -12,7 +12,7 @@ spec:
       - name: go
         image: [dockerImageFullNameTag]
         imagePullPolicy: Always
-        command: ["/bin/sh", "-c", "python manage.py search_index -f --rebuild"]
+        command: ["/bin/sh", "-c", "python3 manage.py search_index -f --rebuild"]
         volumeMounts:
           - name: settings
             mountPath: /app/tardis/settings.yaml
