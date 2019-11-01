@@ -1,8 +1,12 @@
-FROM ubuntu:18.10 AS build
+FROM ubuntu:18.04 AS build
 
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE DontWarn
 ENV DEBIAN_FRONTEND noninteractive
 ENV PYTHONUNBUFFERED 1
+
+# http://bugs.python.org/issue19846
+# > At the moment, setting "LANG=C" on a Linux system *fundamentally breaks Python 3*, and that's not OK.
+ENV LANG C.UTF-8
 
 # Create runtime user
 RUN mkdir -p /app && \
@@ -38,6 +42,7 @@ RUN sed -i 's/archive/au.archive/g' /etc/apt/sources.list && \
         libxi6 \
         mc \
         ncdu \
+        tzdata \
         vim-tiny \
     > /dev/null 2>&1 && \
     cat requirements.txt \
@@ -48,7 +53,7 @@ RUN sed -i 's/archive/au.archive/g' /etc/apt/sources.list && \
         requirements-mydata.txt \
         > /tmp/requirements.txt && \
     cat /tmp/requirements.txt | egrep -v '^\s*(#|$)' | sort && \
-    pip3 install --no-cache-dir -r /tmp/requirements.txt && \
+    pip3 install --no-cache-dir -q -r /tmp/requirements.txt && \
     apt-get -y remove --purge \
         gcc \
         git && \
@@ -117,7 +122,7 @@ RUN apt-get -yqq update && \
     cat requirements-mysql.txt \
         requirements-test.txt \
         > /tmp/requirements.txt && \
-    pip3 install --no-cache-dir -r /tmp/requirements.txt && \
+    pip3 install --no-cache-dir -q -r /tmp/requirements.txt && \
     apt-get -y remove --purge \
         gcc && \
     apt-get -y autoremove && \
