@@ -37,7 +37,7 @@ podTemplate(
         ),
         containerTemplate(
             name: 'postgres',
-            image: 'postgres:9.3',
+            image: 'postgres:9.6',
             alwaysPullImage: false,
             envVars: [
                 envVar(key: 'POSTGRES_PASSWORD', value: 'postgres')
