@@ -120,7 +120,7 @@ podTemplate(
                         updateProperty(":[dockerImageFullNameTag]", dockerImageFullNameTag, "${item}.yaml")
                         sh("kubectl -n ${k8sDeploymentNamespace} delete job/${item} --ignore-not-found")
                         sh("kubectl create -f ${item}.yaml")
-                        sh("kubectl -n ${k8sDeploymentNamespace} wait --for=condition=complete --timeout=300s job/${item}")
+                        sh("kubectl -n ${k8sDeploymentNamespace} wait --for=condition=complete --timeout=480 job/${item}")
                     }
                 }
                 def patch = '{"data":{"version":"' + gitInfo.inspect().replace('[', '{').replace(']', '}') + '"}}'
