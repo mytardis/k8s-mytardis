@@ -36,6 +36,7 @@ BROKER_URL = 'amqp://%(user)s:%(password)s@%(host)s:%(port)s/%(vhost)s' % {
     'vhost': data['rabbitmq']['vhost']
 }
 
+STATIC_ROOT = data.get('static_files_path')
 DEFAULT_STORAGE_BASE_DIR = data['default_store_path']
 METADATA_STORE_PATH = data['metadata_store_path']
 
