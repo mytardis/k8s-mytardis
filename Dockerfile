@@ -104,8 +104,7 @@ RUN curl -sS -o - https://dl.google.com/linux/linux_signing_key.pub | apt-key ad
     echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list
 
 # Copy Python packages
-COPY submodules/mytardis/requirements-mysql.txt \
-     submodules/mytardis/requirements-test.txt \
+COPY submodules/mytardis/requirements-test.txt \
      ./
 
 # Install Python packages and utilities
@@ -114,10 +113,8 @@ RUN apt-get -yqq update && \
         google-chrome-stable \
         gcc \
         unzip \
-        libmysqlclient-dev \
     > /dev/null 2>&1 && \
-    cat requirements-mysql.txt \
-        requirements-test.txt \
+    cat requirements-test.txt \
         > /tmp/requirements.txt && \
     pip install --no-cache-dir -q -r /tmp/requirements.txt && \
     apt-get -y remove --purge \
