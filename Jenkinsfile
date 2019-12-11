@@ -18,7 +18,7 @@ podTemplate(
     containers: [
         containerTemplate(
             name: 'docker',
-            image: 'docker:19.03.2-ce-dind',
+            image: 'docker:19.03.5-dind',
             ttyEnabled: true,
             command: 'cat',
             envVars: [
@@ -45,7 +45,7 @@ podTemplate(
         ),
         containerTemplate(
             name: 'kubectl',
-            image: 'lachlanevenson/k8s-kubectl:v1.15.3',
+            image: 'lachlanevenson/k8s-kubectl:v1.15.6',
             ttyEnabled: true,
             command: 'cat',
             envVars: [
