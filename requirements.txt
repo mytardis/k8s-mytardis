@@ -9,4 +9,4 @@ sentry-sdk==0.10.2
 # somewhere else, e.g. a ConfigMap populated by the Jenkinsfile in a Monash  #
 # specific branch of the k8s-config repository.                              #
 ##############################################################################
-git+https://github.com/monash-merc/Monash_OpenID_Login@539ad6a17d7dbd7765da075e076457581acbab72#egg=monash_openid_login
+git+https://github.com/monash-merc/Monash_OpenID_Login@f04ccf49474c2126e35851ac9e57c28d3b4b37aa#egg=monash_openid_login
