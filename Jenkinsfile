@@ -29,14 +29,6 @@ podTemplate(
             resourceRequestMemory: '2Gi'
         ),
         containerTemplate(
-            name: 'mysql',
-            image: 'mysql:5.7',
-            alwaysPullImage: false,
-            envVars: [
-                envVar(key: 'MYSQL_ROOT_PASSWORD', value: 'mysql')
-            ]
-        ),
-        containerTemplate(
             name: 'postgres',
             image: 'postgres:9.3',
             alwaysPullImage: false,
@@ -94,7 +86,8 @@ podTemplate(
             'pylint': "docker run ${dockerImageFullNameTag} pylint --rcfile .pylintrc tardis",
             'memory': "docker run ${dockerImageFullNameTag} python3 test.py test --settings=tardis.test_settings",
             'postgres': "docker run --add-host pg:${ip} ${dockerImageFullNameTag} python3 test.py test --settings=tardis.test_on_postgresql_settings",
-            'mysql': "docker run --add-host mysql:${ip} ${dockerImageFullNameTag} python3 test.py test --settings=tardis.test_on_mysql_settings"
+            'memory': "docker run ${dockerImageFullNameTag} python test.py test --settings=tardis.test_settings",
+            'postgres': "docker run --add-host pg:${ip} ${dockerImageFullNameTag} python test.py test --settings=tardis.test_on_postgresql_settings"
         ].each { name, command ->
             tests[name] = {
                 stage("Run test - ${name}") {
