@@ -18,14 +18,14 @@ podTemplate(
     containers: [
         containerTemplate(
             name: 'docker',
-            image: 'docker:18.06.2-ce-dind',
+            image: 'docker:19.03.2-ce-dind',
             ttyEnabled: true,
             command: 'cat',
             envVars: [
                 containerEnvVar(key: 'DOCKER_CONFIG', value: '/tmp/docker')
             ],
-            resourceRequestCpu: '500m',
-            resourceRequestMemory: '1Gi'
+            resourceRequestCpu: '1000m',
+            resourceRequestMemory: '2Gi'
         ),
         containerTemplate(
             name: 'mysql',
@@ -45,7 +45,7 @@ podTemplate(
         ),
         containerTemplate(
             name: 'kubectl',
-            image: 'lachlanevenson/k8s-kubectl:v1.13.0',
+            image: 'lachlanevenson/k8s-kubectl:v1.15.3',
             ttyEnabled: true,
             command: 'cat',
             envVars: [
@@ -120,7 +120,7 @@ podTemplate(
                         updateProperty(":[dockerImageFullNameTag]", dockerImageFullNameTag, "${item}.yaml")
                         sh("kubectl -n ${k8sDeploymentNamespace} delete job/${item} --ignore-not-found")
                         sh("kubectl create -f ${item}.yaml")
-                        sh("kubectl -n ${k8sDeploymentNamespace} wait --for=condition=complete --timeout=480 job/${item}")
+                        sh("kubectl -n ${k8sDeploymentNamespace} wait --for=condition=complete --timeout=480s job/${item}")
                     }
                 }
                 def patch = '{"data":{"version":"' + gitInfo.inspect().replace('[', '{').replace(']', '}') + '"}}'
