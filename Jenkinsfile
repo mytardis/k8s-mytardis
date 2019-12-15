@@ -86,8 +86,8 @@ podTemplate(
             'pylint': "docker run ${dockerImageFullNameTag} pylint --rcfile .pylintrc tardis",
             'memory': "docker run ${dockerImageFullNameTag} python3 test.py test --settings=tardis.test_settings",
             'postgres': "docker run --add-host pg:${ip} ${dockerImageFullNameTag} python3 test.py test --settings=tardis.test_on_postgresql_settings",
-            'memory': "docker run ${dockerImageFullNameTag} python test.py test --settings=tardis.test_settings",
-            'postgres': "docker run --add-host pg:${ip} ${dockerImageFullNameTag} python test.py test --settings=tardis.test_on_postgresql_settings"
+            'memory': "docker run ${dockerImageFullNameTag} python3 test.py test --settings=tardis.test_settings",
+            'postgres': "docker run --add-host pg:${ip} ${dockerImageFullNameTag} python3 test.py test --settings=tardis.test_on_postgresql_settings"
         ].each { name, command ->
             tests[name] = {
                 stage("Run test - ${name}") {
