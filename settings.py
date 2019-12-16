@@ -24,6 +24,7 @@ DATABASES['default'] = {
     'USER': data['postgres']['user'],
     'PASSWORD': data['postgres']['password'],
     'NAME': data['postgres']['name'],
+    'DISABLE_SERVER_SIDE_CURSORS': True,
     'CONN_MAX_AGE': data['postgres'].get('conn_max_age')  # None means re-use connections
 }
 
