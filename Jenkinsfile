@@ -108,6 +108,14 @@ podTemplate(
         }
         stage('Deploy image to Kubernetes') {
             container('kubectl') {
+                dir('jobs') {
+                    ['collectstatic'].each { item ->
+                        updateProperty(":[dockerImageFullNameTag]", dockerImageFullNameTag, "${item}.yaml")
+                        sh("kubectl -n ${k8sDeploymentNamespace} delete job/${item} --ignore-not-found")
+                        sh("kubectl create -f ${item}.yaml")
+                        sh("kubectl -n ${k8sDeploymentNamespace} wait --for=condition=complete --timeout=480s job/${item}")
+                    }
+                }
                 ['graphql'].each { item ->
                     sh("kubectl -n ${k8sDeploymentNamespace} set image deployment/${item} ${item}=${dockerImageFullNameTag}")
                 }
