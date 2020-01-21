@@ -1,7 +1,7 @@
-def stackName = 'prod'
+def stackName = 'test'
 def workerLabel = "mytardis-${stackName}"
 def dockerHubAccount = 'mytardis'
-def dockerImageName = "k8s-mytardis-${stackName}"
+def dockerImageName = "k8s-mytardis-${stackName}-graphql"
 def dockerImageTag = ''
 def dockerImageFullNameTag = ''
 def k8sDeploymentNamespace = 'mytardis'
@@ -85,8 +85,6 @@ podTemplate(
             'behave': "docker run ${dockerImageFullNameTag} python3 manage.py behave --settings=tardis.test_settings",
             'pylint': "docker run ${dockerImageFullNameTag} pylint --rcfile .pylintrc tardis",
             'memory': "docker run ${dockerImageFullNameTag} python3 test.py test --settings=tardis.test_settings",
-            'postgres': "docker run --add-host pg:${ip} ${dockerImageFullNameTag} python3 test.py test --settings=tardis.test_on_postgresql_settings",
-            'memory': "docker run ${dockerImageFullNameTag} python3 test.py test --settings=tardis.test_settings",
             'postgres': "docker run --add-host pg:${ip} ${dockerImageFullNameTag} python3 test.py test --settings=tardis.test_on_postgresql_settings"
         ].each { name, command ->
             tests[name] = {
@@ -110,18 +108,7 @@ podTemplate(
         }
         stage('Deploy image to Kubernetes') {
             container('kubectl') {
-                dir('jobs') {
-                    ['migrate', 'collectstatic'].each { item ->
-                        updateProperty(":[dockerImageFullNameTag]", dockerImageFullNameTag, "${item}.yaml")
-                        sh("kubectl -n ${k8sDeploymentNamespace} delete job/${item} --ignore-not-found")
-                        sh("kubectl create -f ${item}.yaml")
-                        sh("kubectl -n ${k8sDeploymentNamespace} wait --for=condition=complete --timeout=300s job/${item}")
-                    }
-                }
-                def patch = '{"data":{"version":"' + gitInfo.inspect().replace('[', '{').replace(']', '}') + '"}}'
-                echo "patch: ${patch}"
-                sh("kubectl -n ${k8sDeploymentNamespace} patch configmap/version -p '" + patch.replace("'", '\\"') + "'")
-                ['mytardis', 'sftp', 'celery-worker', 'celery-beat'].each { item ->
+                ['graphql'].each { item ->
                     sh("kubectl -n ${k8sDeploymentNamespace} set image deployment/${item} ${item}=${dockerImageFullNameTag}")
                 }
             }
