@@ -121,7 +121,7 @@ podTemplate(
                 def patch = '{"data":{"version":"' + gitInfo.inspect().replace('[', '{').replace(']', '}') + '"}}'
                 echo "patch: ${patch}"
                 sh("kubectl -n ${k8sDeploymentNamespace} patch configmap/version -p '" + patch.replace("'", '\\"') + "'")
-                ['mytardis', 'sftp', 'celery-worker', 'celery-beat'].each { item ->
+                ['mytardis', 'api', 'download', 'sftp', 'celery-worker', 'celery-beat'].each { item ->
                     sh("kubectl -n ${k8sDeploymentNamespace} set image deployment/${item} ${item}=${dockerImageFullNameTag}")
                 }
             }
