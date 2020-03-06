@@ -57,7 +57,7 @@ podTemplate(
         stage('Clone repository') {
             checkout scm
             // git url: 'https://github.com/mytardis/k8s-mytardis', branch: 'master'
-            sh("git submodule update --remote --init --recursive")
+            sh("git submodule update --init --recursive")
         }
         dockerImageTag = sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%h"').trim()
         dockerImageFullNameTag = "${dockerHubAccount}/${dockerImageName}:${dockerImageTag}"
