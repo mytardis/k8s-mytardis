@@ -4,6 +4,3 @@
 [submodule "submodules/mytardis-app-mydata"]
     path = submodules/mytardis-app-mydata
     url = https://github.com/mytardis/mytardis-app-mydata.git
-[submodule "submodules/mytardis-app-driving"]
-	path = submodules/mytardis-app-driving
-	url = https://github.com/jameswettenhall/mytardis-app-driving.git
