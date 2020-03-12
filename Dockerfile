@@ -62,6 +62,7 @@ RUN sed -i 's/archive/au.archive/g' /etc/apt/sources.list && \
 
 # Copy NodeJS requirements
 COPY submodules/mytardis/package.json ./
+COPY submodules/mytardis/package-lock.json ./
 COPY submodules/mytardis/webpack.config.js ./
 COPY submodules/mytardis/assets/ assets/
 COPY submodules/mytardis/.babelrc ./
