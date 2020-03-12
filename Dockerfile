@@ -61,6 +61,7 @@ RUN apt-get -yqq update && \
 
 # Copy NodeJS requirements
 COPY submodules/mytardis/package.json ./
+COPY submodules/mytardis/package-lock.json ./
 COPY submodules/mytardis/webpack.config.js ./
 COPY submodules/mytardis/assets/ assets/
 COPY submodules/mytardis/.babelrc ./
