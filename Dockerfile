@@ -1,4 +1,4 @@
-FROM ubuntu:18.10 AS build
+FROM ubuntu:18.04 AS build
 
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE DontWarn
 ENV DEBIAN_FRONTEND noninteractive
@@ -25,7 +25,8 @@ COPY submodules/mytardis/tardis/apps/social_auth/requirements.txt ./requirements
 COPY submodules/mytardis-app-mydata/requirements.txt ./requirements-mydata.txt
 
 # Install Python packages
-RUN apt-get -yqq update && \
+RUN sed -i 's/archive/au.archive/g' /etc/apt/sources.list && \
+    apt-get -yqq update && \
     apt-get -yqq install --no-install-recommends -o=Dpkg::Use-Pty=0 \
         curl \
         git \
