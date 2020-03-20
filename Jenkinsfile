@@ -1,10 +1,9 @@
-def stackName = 'prod'
+def stackName = 'develop'
 def workerLabel = "mytardis-${stackName}"
 def dockerHubAccount = 'mytardis'
 def dockerImageName = "k8s-mytardis-${stackName}"
 def dockerImageTag = ''
 def dockerImageFullNameTag = ''
-def k8sDeploymentNamespace = 'mytardis'
 def gitInfo = ''
 
 def updateProperty(property, value, file) {
@@ -35,19 +34,9 @@ podTemplate(
             envVars: [
                 envVar(key: 'POSTGRES_PASSWORD', value: 'postgres')
             ]
-        ),
-        containerTemplate(
-            name: 'kubectl',
-            image: 'lachlanevenson/k8s-kubectl:v1.13.0',
-            ttyEnabled: true,
-            command: 'cat',
-            envVars: [
-                containerEnvVar(key: 'KUBECONFIG', value: '/tmp/kube/admin.conf')
-            ]
         )
     ],
     volumes: [
-        secretVolume(secretName: "kube-config-${stackName}", mountPath: '/tmp/kube'),
         secretVolume(secretName: 'docker-config', mountPath: '/tmp/docker'),
         hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')
     ]
@@ -106,24 +95,6 @@ podTemplate(
         stage('Push image to DockerHub') {
             container('docker') {
                 sh("docker push ${dockerImageFullNameTag}")
-            }
-        }
-        stage('Deploy image to Kubernetes') {
-            container('kubectl') {
-                dir('jobs') {
-                    ['migrate', 'collectstatic'].each { item ->
-                        updateProperty(":[dockerImageFullNameTag]", dockerImageFullNameTag, "${item}.yaml")
-                        sh("kubectl -n ${k8sDeploymentNamespace} delete job/${item} --ignore-not-found")
-                        sh("kubectl create -f ${item}.yaml")
-                        sh("kubectl -n ${k8sDeploymentNamespace} wait --for=condition=complete --timeout=300s job/${item}")
-                    }
-                }
-                def patch = '{"data":{"version":"' + gitInfo.inspect().replace('[', '{').replace(']', '}') + '"}}'
-                echo "patch: ${patch}"
-                sh("kubectl -n ${k8sDeploymentNamespace} patch configmap/version -p '" + patch.replace("'", '\\"') + "'")
-                ['mytardis', 'api', 'download', 'sftp', 'celery-worker', 'celery-beat'].each { item ->
-                    sh("kubectl -n ${k8sDeploymentNamespace} set image deployment/${item} ${item}=${dockerImageFullNameTag}")
-                }
             }
         }
     }
