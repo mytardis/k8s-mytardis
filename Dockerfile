@@ -73,7 +73,7 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
     apt-get -yqq install --no-install-recommends -o=Dpkg::Use-Pty=0 \
         nodejs \
     > /dev/null 2>&1 && \
-    npm install --production --no-cache --quiet --depth 0 && \
+    npm install --production --unsafe-perm --no-cache --quiet --depth 0 && \
     npm run-script build --no-cache --quiet && \
     rm -rf /app/node_modules && \
     rm -rf /app/false && \
@@ -140,7 +140,7 @@ RUN apt-get -yqq update && \
     apt-get -yqq install --no-install-recommends -o=Dpkg::Use-Pty=0 \
         nodejs \
     > /dev/null 2>&1 && \
-    npm install --no-cache --quiet --depth 0 && \
+    npm install --unsafe-perm --no-cache --quiet --depth 0 && \
     apt-get -y remove --purge \
         gcc && \
     apt-get -y autoremove && \
