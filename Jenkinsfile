@@ -15,7 +15,6 @@ def updateProperty(property, value, file) {
 podTemplate(
     label: workerLabel,
     serviceAccount: 'jenkins',
-    automountServiceAccountToken: true,
     containers: [
         containerTemplate(
             name: 'docker',
