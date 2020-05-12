@@ -49,7 +49,9 @@ SERVER_EMAIL = data['email']['server']
 ADMINS = []
 for user in data['admins']:
     ADMINS.append((user['name'], user['email']))
-MANAGERS = ADMINS
+MANAGERS = []
+for user in data['managers']:
+    MANAGERS.append((user['name'], user['email']))
 
 INSTALLED_APPS += tuple(data['installed_apps'])
 
