@@ -4,6 +4,7 @@ def dockerHubAccount = 'mytardis'
 def dockerImageName = "k8s-mytardis-${stackName}"
 def dockerImageTag = ''
 def dockerImageFullNameTag = ''
+def dockerImageFullNameLatestTag = ''
 def k8sDeploymentNamespace = 'mytardis'
 def gitInfo = ''
 
@@ -103,6 +104,10 @@ podTemplate(
         stage('Push image to DockerHub') {
             container('docker') {
                 sh("docker push ${dockerImageFullNameTag}")
+                // Tag and push latest build as :latest
+                dockerImageFullNameLatestTag = "${dockerHubAccount}/${dockerImageName}:latest"
+                sh("docker tag ${dockerImageFullNameTag} ${dockerImageFullNameLatestTag}")
+                sh("docker push ${dockerImageFullNameLatestTag}")
             }
         }
         stage('Deploy image to Kubernetes') {
