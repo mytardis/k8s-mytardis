@@ -1,7 +1,7 @@
-def branchName = 'test'
-def workerLabel = "mytardis-${branchName}"
+def stackName = 'test'
+def workerLabel = "mytardis-${stackName}"
 def dockerHubAccount = 'mytardis'
-def dockerImageName = "k8s-mytardis-${branchName}"
+def dockerImageName = "k8s-mytardis-${stackName}"
 def dockerImageTag = ''
 def dockerImageFullNameTag = ''
 def k8sDeploymentNamespace = 'mytardis'
@@ -18,7 +18,7 @@ podTemplate(
     containers: [
         containerTemplate(
             name: 'docker',
-            image: 'docker:19.03.5-dind',
+            image: 'docker:18.04-dind',
             ttyEnabled: true,
             command: 'cat',
             envVars: [
@@ -26,14 +26,6 @@ podTemplate(
             ],
             resourceRequestCpu: '1000m',
             resourceRequestMemory: '2Gi'
-        ),
-        containerTemplate(
-            name: 'mysql',
-            image: 'mysql:5.7',
-            alwaysPullImage: false,
-            envVars: [
-                envVar(key: 'MYSQL_ROOT_PASSWORD', value: 'mysql')
-            ]
         ),
         containerTemplate(
             name: 'postgres',
@@ -54,7 +46,7 @@ podTemplate(
         )
     ],
     volumes: [
-        secretVolume(secretName: "kube-config-${branchName}", mountPath: '/tmp/kube'),
+        secretVolume(secretName: "kube-config-${stackName}", mountPath: '/tmp/kube'),
         secretVolume(secretName: 'docker-config', mountPath: '/tmp/docker'),
         hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')
     ]
@@ -67,7 +59,7 @@ podTemplate(
         }
         dockerImageTag = sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%h"').trim()
         dockerImageFullNameTag = "${dockerHubAccount}/${dockerImageName}:${dockerImageTag}"
-        dir('submobules/mytardis') {
+        dir('submodules/mytardis') {
             gitInfo = [
                 'commit_id': sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%H"').trim(),
                 'date': sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%cd" --date=rfc').trim(),
@@ -91,8 +83,7 @@ podTemplate(
             'behave': "docker run ${dockerImageFullNameTag} python3 manage.py behave --settings=tardis.test_settings",
             'pylint': "docker run ${dockerImageFullNameTag} pylint --rcfile .pylintrc tardis",
             'memory': "docker run ${dockerImageFullNameTag} python3 test.py test --settings=tardis.test_settings",
-            'postgres': "docker run --add-host pg:${ip} ${dockerImageFullNameTag} python3 test.py test --settings=tardis.test_on_postgresql_settings",
-            'mysql': "docker run --add-host mysql:${ip} ${dockerImageFullNameTag} python3 test.py test --settings=tardis.test_on_mysql_settings"
+            'postgres': "docker run --add-host pg:${ip} ${dockerImageFullNameTag} python3 test.py test --settings=tardis.test_on_postgresql_settings"
         ].each { name, command ->
             tests[name] = {
                 stage("Run test - ${name}") {
@@ -120,7 +111,7 @@ podTemplate(
                         updateProperty(":[dockerImageFullNameTag]", dockerImageFullNameTag, "${item}.yaml")
                         sh("kubectl -n ${k8sDeploymentNamespace} delete job/${item} --ignore-not-found")
                         sh("kubectl create -f ${item}.yaml")
-                        sh("kubectl -n ${k8sDeploymentNamespace} wait --for=condition=complete --timeout=480s job/${item}")
+                        sh("kubectl -n ${k8sDeploymentNamespace} wait --for=condition=complete --timeout=300s job/${item}")
                     }
                 }
                 def patch = '{"data":{"version":"' + gitInfo.inspect().replace('[', '{').replace(']', '}') + '"}}'
