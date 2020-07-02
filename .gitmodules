@@ -1,7 +1,7 @@
 [submodule "submodules/mytardis"]
     path = submodules/mytardis
     url = https://github.com/manishkumr/mytardis.git
-    branch = develop
+    branch = reactive_badges
 [submodule "submodules/mytardis-app-mydata"]
     path = submodules/mytardis-app-mydata
     url = https://github.com/mytardis/mytardis-app-mydata.git
