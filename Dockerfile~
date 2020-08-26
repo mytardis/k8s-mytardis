@@ -117,14 +117,13 @@ COPY submodules/mytardis/requirements-mysql.txt \
 RUN apt-get -yqq update && \
     apt-get -yqq install --no-install-recommends -o=Dpkg::Use-Pty=0 \
         google-chrome-stable \
-        libxss1 \
         gcc \
         unzip \
         libmysqlclient-dev \
     > /dev/null 2>&1 && \
     cat requirements-mysql.txt \
         requirements-test.txt \
-        > /tmp/requirements.txt && \
+[B        > /tmp/requirements.txt && \
     pip3 install --no-cache-dir -q -r /tmp/requirements.txt && \
     apt-get -y remove --purge \
         gcc && \
