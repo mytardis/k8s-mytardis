@@ -114,6 +114,7 @@ COPY submodules/mytardis/requirements-test.txt \
 # Install Python packages and utilities
 RUN apt-get -yqq update && \
     apt-get -yqq install --no-install-recommends -o=Dpkg::Use-Pty=0 \
+        libxss1 \
         google-chrome-stable \
         gcc \
         unzip \
