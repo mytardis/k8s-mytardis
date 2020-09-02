@@ -39,6 +39,7 @@ RUN apt-get -yqq update && \
         libmagickwand-dev \
         libglu1-mesa-dev \
         libxi6 \
+        libxss1 \
         lsof \
         mc \
         ncdu \
