@@ -37,6 +37,9 @@ RUN apt-get -yqq update && \
         libglu1-mesa-dev \
         libxi6 \
         libxss1 \
+        libXext \
+        libXrender \
+        libXtst \
         lsof \
         mc \
         ncdu \
