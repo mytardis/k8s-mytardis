@@ -8,11 +8,8 @@ ENV PYTHONUNBUFFERED 1
 # > At the moment, setting "LANG=C" on a Linux system *fundamentally breaks Python 3*, and that's not OK.
 ENV LANG C.UTF-8
 
-# Create runtime user
-RUN mkdir -p /app && \
-    groupadd -r -g 1001 mytardis && \
-    useradd -r -m -u 1001 -g 1001 mytardis
-
+# Create runtime app folder
+RUN mkdir /app
 WORKDIR /app
 
 # Copy Python requirements
@@ -94,15 +91,11 @@ COPY settings.py ./tardis/
 COPY beat.py ./
 COPY entrypoint.sh ./
 
-RUN chown -R mytardis:mytardis /app
-USER mytardis
 EXPOSE 8000
 
 CMD ["sh", "entrypoint.sh"]
 
 FROM build AS test
-
-USER root
 
 # Add Chrome repo
 RUN curl -sS -o - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - && \
