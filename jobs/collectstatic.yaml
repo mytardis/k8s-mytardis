@@ -16,13 +16,13 @@ spec:
           - name: settings
             mountPath: /app/tardis/settings.yaml
             subPath: settings.yaml
-          - name: smb-stormon-ceph
+          - name: cephfs-stormon
             mountPath: /srv/stormon_ceph
       restartPolicy: Never
       volumes:
       - name: settings
         configMap:
           name: mytardis
-      - name: smb-stormon-ceph
+      - name: cephfs-stormon
         persistentVolumeClaim:
-          claimName: smb-stormon-ceph
+          claimName: cephfs-stormon
