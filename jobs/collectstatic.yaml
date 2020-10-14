@@ -8,16 +8,22 @@ spec:
   parallelism: 1
   template:
     spec:
+      securityContext:
+        runAsUser: 1001
+        fsGroup: 1001
+        supplementalGroups:
+        - 418
+        - 1931
       containers:
       - name: go
         image: :[dockerImageFullNameTag]
         command: ["/bin/sh", "-c", "python3 manage.py collectstatic --noinput"]
         volumeMounts:
-          - name: settings
-            mountPath: /app/tardis/settings.yaml
-            subPath: settings.yaml
-          - name: cephfs-stormon
-            mountPath: /srv/stormon_ceph
+        - name: settings
+          mountPath: /app/tardis/settings.yaml
+          subPath: settings.yaml
+        - name: cephfs-stormon
+          mountPath: /srv/stormon_ceph
       restartPolicy: Never
       volumes:
       - name: settings
