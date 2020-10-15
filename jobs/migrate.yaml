@@ -8,6 +8,7 @@ spec:
   parallelism: 1
   template:
     spec:
+      restartPolicy: Never
       containers:
       - name: go
         image: :[dockerImageFullNameTag]
@@ -16,7 +17,6 @@ spec:
           - name: settings
             mountPath: /app/tardis/settings.yaml
             subPath: settings.yaml
-      restartPolicy: Never
       volumes:
       - name: settings
         configMap:

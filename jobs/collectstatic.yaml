@@ -8,6 +8,7 @@ spec:
   parallelism: 1
   template:
     spec:
+      restartPolicy: Never
       securityContext:
         runAsUser: 1001
         fsGroup: 1001
@@ -22,13 +23,12 @@ spec:
         - name: settings
           mountPath: /app/tardis/settings.yaml
           subPath: settings.yaml
-        - name: cephfs-stormon
-          mountPath: /srv/stormon_ceph
-      restartPolicy: Never
+        - name: nfs-storage
+          mountPath: /srv/storage
       volumes:
       - name: settings
         configMap:
           name: mytardis
-      - name: cephfs-stormon
+      - name: nfs-storage
         persistentVolumeClaim:
-          claimName: cephfs-stormon
+          claimName: nfs-storage
