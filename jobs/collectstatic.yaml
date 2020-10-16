@@ -8,6 +8,13 @@ spec:
   parallelism: 1
   template:
     spec:
+      restartPolicy: Never
+      securityContext:
+        runAsUser: 1001
+        fsGroup: 1001
+        supplementalGroups:
+        - 418
+        - 1931
       containers:
       - name: go
         image: :[dockerImageFullNameTag]
@@ -16,13 +23,12 @@ spec:
           - name: settings
             mountPath: /app/tardis/settings.yaml
             subPath: settings.yaml
-          - name: smb-stormon-ceph
-            mountPath: /srv/stormon_ceph
-      restartPolicy: Never
+          - name: nfs-static-files
+            mountPath: /srv/static
       volumes:
       - name: settings
         configMap:
           name: mytardis
-      - name: smb-stormon-ceph
+      - name: nfs-static-files
         persistentVolumeClaim:
-          claimName: smb-stormon-ceph
+          claimName: nfs-static-files
