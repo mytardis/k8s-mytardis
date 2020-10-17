@@ -118,6 +118,7 @@ RUN apt-get -yqq update && \
     apt-get -yqq install --no-install-recommends -o=Dpkg::Use-Pty=0 \
         google-chrome-stable \
         libxss1 \
+        libxtst6 \
         gcc \
         unzip \
         libmysqlclient-dev \
