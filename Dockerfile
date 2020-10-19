@@ -89,7 +89,7 @@ COPY submodules/mytardis/ ./
 COPY submodules/mytardis-app-mydata/ tardis/apps/mydata/
 
 # Copy k8s-related code
-COPY about.html ./tardis/tardis_portal/templates/tardis_portal/
+COPY about.html ./tardis/tardis_portal/templates/tardis_portal/about_sdm.html
 COPY settings.py ./tardis/
 COPY beat.py ./
 COPY entrypoint.sh ./
