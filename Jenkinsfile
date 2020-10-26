@@ -77,18 +77,10 @@ podTemplate(
                 gitInfo['tag'] = sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%h"').trim()
             }
         }
+        /*
         stage('Build image for tests') {
             container('docker') {
                 sh("docker build . --tag ${dockerImageFullNameTag} --target=test")
-            }
-        }
-        stage('Check image with Anchore') {
-            container('docker') {
-                sh("apk update && apk add --no-cache python3 py3-pip")
-                sh("pip3 install --user anchorecli && ln -s ~/.local/bin/anchore-cli /usr/local/bin")
-                sh("anchore-cli image add ${dockerImageFullNameTag}")
-                sh("anchore-cli image wait ${dockerImageFullNameTag}")
-                sh("anchore-cli image vuln ${dockerImageFullNameTag} os")
             }
         }
         def tests = [:]
@@ -108,6 +100,7 @@ podTemplate(
             }
         }
         parallel tests
+        */
         stage('Build image for production') {
             container('docker') {
                 sh("docker build . --tag ${dockerImageFullNameTag} --target=production")
@@ -122,6 +115,16 @@ podTemplate(
                 sh("docker push ${dockerImageFullNameLatestTag}")
             }
         }
+        stage('Check image with Anchore') {
+            container('docker') {
+                sh("apk update && apk add --no-cache python3 py3-pip")
+                sh("pip3 install --user anchorecli && ln -s ~/.local/bin/anchore-cli /usr/local/bin")
+                sh("anchore-cli image add ${dockerImageFullNameTag}")
+                sh("anchore-cli image wait ${dockerImageFullNameTag}")
+                sh("anchore-cli image vuln ${dockerImageFullNameTag} os")
+            }
+        }
+        /*
         stage('Deploy image to Kubernetes') {
             container('kubectl') {
                 dir('jobs') {
@@ -140,5 +143,6 @@ podTemplate(
                 }
             }
         }
+        */
     }
 }
