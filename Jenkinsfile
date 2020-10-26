@@ -84,7 +84,7 @@ podTemplate(
         }
         stage('Check image with Anchore') {
             container('docker') {
-                sh("apt install python-pip")
+                sh("apt-get update && apt-get install -y python-pip && apt-get clean")
                 sh("pip install --user anchorecli")
                 sh("anchore-cli image add ${dockerImageFullNameTag}")
                 sh("anchore-cli image wait ${dockerImageFullNameTag}")
