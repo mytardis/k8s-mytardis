@@ -77,7 +77,6 @@ podTemplate(
                 gitInfo['tag'] = sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%h"').trim()
             }
         }
-        /*
         stage('Build image for tests') {
             container('docker') {
                 sh("docker build . --tag ${dockerImageFullNameTag} --target=test")
@@ -100,7 +99,6 @@ podTemplate(
             }
         }
         parallel tests
-        */
         stage('Build image for production') {
             container('docker') {
                 sh("docker build . --tag ${dockerImageFullNameTag} --target=production")
@@ -109,10 +107,6 @@ podTemplate(
         stage('Push image to DockerHub') {
             container('docker') {
                 sh("docker push ${dockerImageFullNameTag}")
-                // Tag and push latest build as :latest
-                dockerImageFullNameLatestTag = "${dockerHubAccount}/${dockerImageName}:latest"
-                sh("docker tag ${dockerImageFullNameTag} ${dockerImageFullNameLatestTag}")
-                sh("docker push ${dockerImageFullNameLatestTag}")
             }
         }
         stage('Check image with Anchore') {
@@ -121,10 +115,16 @@ podTemplate(
                 sh("pip3 install --user anchorecli && ln -s ~/.local/bin/anchore-cli /usr/local/bin")
                 sh("anchore-cli image add ${dockerImageFullNameTag}")
                 sh("anchore-cli image wait ${dockerImageFullNameTag}")
-                sh("anchore-cli image vuln ${dockerImageFullNameTag} os")
+                sh("anchore-cli evaluate check ${dockerImageFullNameTag} --detail")
             }
         }
-        /*
+        stage('Tag and push :latest build') {
+            container('docker') {
+                dockerImageFullNameLatestTag = "${dockerHubAccount}/${dockerImageName}:latest"
+                sh("docker tag ${dockerImageFullNameTag} ${dockerImageFullNameLatestTag}")
+                sh("docker push ${dockerImageFullNameLatestTag}")
+            }
+        }
         stage('Deploy image to Kubernetes') {
             container('kubectl') {
                 dir('jobs') {
@@ -143,6 +143,5 @@ podTemplate(
                 }
             }
         }
-        */
     }
 }
