@@ -23,7 +23,10 @@ podTemplate(
             ttyEnabled: true,
             command: 'cat',
             envVars: [
-                containerEnvVar(key: 'DOCKER_CONFIG', value: '/tmp/docker')
+                containerEnvVar(key: 'DOCKER_CONFIG', value: '/tmp/docker'),
+                envVar(key: 'ANCHORE_CLI_URL', value: 'http://anchore-anchore-engine-api.jenkins.svc.cluster.local:8228/v1'),
+                envVar(key: 'ANCHORE_CLI_USER', value: 'admin'),
+                envVar(key: 'ANCHORE_CLI_PASS', value: 'foobar')
             ],
             resourceRequestCpu: '1000m',
             resourceRequestMemory: '2Gi'
@@ -77,6 +80,15 @@ podTemplate(
         stage('Build image for tests') {
             container('docker') {
                 sh("docker build . --tag ${dockerImageFullNameTag} --target=test")
+            }
+        }
+        stage('Check image with Anchore') {
+            container('docker') {
+                sh("sudo easy_install pip")
+                sh("pip install --user anchorecli")
+                sh("anchore-cli image add ${dockerImageFullNameTag}")
+                sh("anchore-cli image wait ${dockerImageFullNameTag}")
+                sh("anchore-cli image vuln ${dockerImageFullNameTag} os")
             }
         }
         def tests = [:]
