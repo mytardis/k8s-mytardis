@@ -85,8 +85,7 @@ podTemplate(
         stage('Check image with Anchore') {
             container('docker') {
                 sh("apk update && apk add --no-cache python3 py3-pip")
-                sh("pip3 install --user anchorecli")
-                sh("export PATH=~/.local/bin:$PATH")
+                sh("pip3 install --user anchorecli && ln -s ~/.local/bin/anchore-cli /usr/local/bin")
                 sh("anchore-cli image add ${dockerImageFullNameTag}")
                 sh("anchore-cli image wait ${dockerImageFullNameTag}")
                 sh("anchore-cli image vuln ${dockerImageFullNameTag} os")
