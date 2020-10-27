@@ -1,4 +1,4 @@
-def stackName = 'prod'
+def stackName = 'demo'
 def workerLabel = "mytardis-${stackName}"
 def dockerHubAccount = 'mytardis'
 def dockerImageName = "k8s-mytardis-${stackName}"
