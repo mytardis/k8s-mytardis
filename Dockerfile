@@ -1,8 +1,17 @@
-FROM ubuntu:18.10 AS build
+FROM ubuntu:18.04 AS build
 
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE DontWarn
 ENV DEBIAN_FRONTEND noninteractive
 ENV PYTHONUNBUFFERED 1
+
+# http://bugs.python.org/issue19846
+# > At the moment, setting "LANG=C" on a Linux system *fundamentally breaks Python 3*, and that's not OK.
+ENV LANG C.UTF-8
+
+# Create runtime user
+RUN mkdir -p /app && \
+    groupadd -r -g 1001 mytardis && \
+    useradd -r -m -u 1001 -g 1001 mytardis
 
 WORKDIR /app
 
@@ -21,17 +30,19 @@ RUN apt-get -yqq update && \
         curl \
         git \
         gcc \
-        python-pip \
-        python-dev \
-        python-setuptools \
+        python3-pip \
+        python3-dev \
+        python3-setuptools \
         libldap2-dev \
         libsasl2-dev \
         libmagic-dev \
         libmagickwand-dev \
         libglu1-mesa-dev \
         libxi6 \
+        lsof \
         mc \
         ncdu \
+        tzdata \
         vim-tiny \
     > /dev/null 2>&1 && \
     cat requirements.txt \
@@ -42,7 +53,7 @@ RUN apt-get -yqq update && \
         requirements-mydata.txt \
         > /tmp/requirements.txt && \
     cat /tmp/requirements.txt | egrep -v '^\s*(#|$)' | sort && \
-    pip install --no-cache-dir -q -r /tmp/requirements.txt && \
+    pip3 install --no-cache-dir -q -r /tmp/requirements.txt && \
     apt-get -y remove --purge \
         gcc \
         git && \
@@ -51,8 +62,10 @@ RUN apt-get -yqq update && \
 
 # Copy NodeJS requirements
 COPY submodules/mytardis/package.json ./
+COPY submodules/mytardis/package-lock.json ./
 COPY submodules/mytardis/webpack.config.js ./
 COPY submodules/mytardis/assets/ assets/
+COPY submodules/mytardis/.babelrc ./
 
 # Install NodeJS packages
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
@@ -80,33 +93,36 @@ COPY settings.py ./tardis/
 COPY beat.py ./
 COPY entrypoint.sh ./
 
+RUN chown -R mytardis:mytardis /app
+USER mytardis
 EXPOSE 8000
 
 CMD ["sh", "entrypoint.sh"]
 
 FROM build AS test
 
+USER root
+
 # Add Chrome repo
 RUN curl -sS -o - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - && \
     echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list
 
 # Copy Python packages
-COPY submodules/mytardis/requirements-mysql.txt \
-     submodules/mytardis/requirements-test.txt \
+COPY submodules/mytardis/requirements-test.txt \
      ./
 
 # Install Python packages and utilities
 RUN apt-get -yqq update && \
     apt-get -yqq install --no-install-recommends -o=Dpkg::Use-Pty=0 \
+        libxss1 \
+        libxtst6 \
         google-chrome-stable \
         gcc \
         unzip \
-        libmysqlclient-dev \
     > /dev/null 2>&1 && \
-    cat requirements-mysql.txt \
-        requirements-test.txt \
+    cat requirements-test.txt \
         > /tmp/requirements.txt && \
-    pip install --no-cache-dir -q -r /tmp/requirements.txt && \
+    pip3 install --no-cache-dir -q -r /tmp/requirements.txt && \
     apt-get -y remove --purge \
         gcc && \
     apt-get -y autoremove && \
@@ -132,15 +148,15 @@ RUN apt-get -yqq update && \
     apt-get -y autoremove && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+# Create default storage
+RUN mkdir -p var/store
+
 # Copy app code
 COPY submodules/mytardis/ \
      submodules/mytardis/.pylintrc \
      submodules/mytardis/.eslintrc \
      ./
 COPY submodules/mytardis-app-mydata/ tardis/apps/mydata/
-
-# Create default storage
-RUN mkdir -p var/store
 
 # This will keep container running...
 CMD ["tail", "-f", "/dev/null"]
