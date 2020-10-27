@@ -9,6 +9,12 @@ spec:
   template:
     spec:
       restartPolicy: Never
+      securityContext:
+        runAsUser: 1001
+        fsGroup: 1001
+        supplementalGroups:
+        - 418
+        - 1931
       containers:
       - name: go
         image: :[dockerImageFullNameTag]
