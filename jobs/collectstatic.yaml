@@ -31,5 +31,5 @@ spec:
           name: mytardis
       - name: var-store
         nfs:
-	  path: /var/store
-	  server: 118.138.241.211
+          path: /var/store
+          server: 118.138.241.211
