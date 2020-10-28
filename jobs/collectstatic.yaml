@@ -23,7 +23,13 @@ spec:
           - name: settings
             mountPath: /app/tardis/settings.yaml
             subPath: settings.yaml
+          - name: var-store
+            mountPath: /var/store
       volumes:
       - name: settings
         configMap:
           name: mytardis
+      - name: var-store
+        nfs:
+	  path: /var/store
+	  server: 118.138.241.211
