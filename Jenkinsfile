@@ -108,10 +108,12 @@ podTemplate(
             container('docker') {
                 sh("apk update && apk add --no-cache curl bash python3 py3-pip")
                 sh("pip3 install --user anchorecli && ln -s ~/.local/bin/anchore-cli /usr/local/bin")
+                // Local docker image analysis
                 sh("curl -s https://ci-tools.anchore.io/inline_scan-latest | bash -s -- analyze -r http://anchore-anchore-engine-api.jenkins.svc.cluster.local:8228/v1 -u admin -p foobar -g ${dockerImageFullNameTag}")
+                // This is a remote docker image pull
                 // sh("anchore-cli image add ${dockerImageFullNameTag}")
-                sh("anchore-cli image wait ${dockerImageFullNameTag}")
-                sh("anchore-cli evaluate check ${dockerImageFullNameTag} --detail")
+                sh("anchore-cli image wait localbuild/${dockerImageFullNameTag}")
+                sh("anchore-cli evaluate check localbuild/${dockerImageFullNameTag} --detail")
             }
         }
         stage('Push image to DockerHub') {
