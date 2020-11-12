@@ -98,7 +98,7 @@ podTemplate(
                 }
             }
         }
-        parallel tests
+        // parallel tests
         stage('Build image for production') {
             container('docker') {
                 sh("docker build . --tag ${dockerImageFullNameTag} --target=production")
@@ -106,7 +106,7 @@ podTemplate(
         }
         stage('Check image with Anchore') {
             container('docker') {
-                sh("apk update && apk add --no-cache python3 py3-pip")
+                sh("apk update && apk add --no-cache curl bash python3 py3-pip")
                 sh("pip3 install --user anchorecli && ln -s ~/.local/bin/anchore-cli /usr/local/bin")
                 sh("curl -s https://ci-tools.anchore.io/inline_scan-latest | bash -s -- analyze -u admin -p foobar -r http://anchore-anchore-engine-api.jenkins.svc.cluster.local:8228/v1 ${dockerImageFullNameTag}")
                 // sh("anchore-cli image add ${dockerImageFullNameTag}")
