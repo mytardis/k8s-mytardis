@@ -6,8 +6,7 @@ def dockerImageTag = ''
 def dockerImageFullNameTag = ''
 def dockerImageFullNameLatestTag = ''
 def k8sDeploymentNamespace = 'mytardis'
-def gitInfo = ''
-def verifyImage = ''
+
 
 def updateProperty(property, value, file) {
     escapedProperty = property.replace('[', '\\[').replace(']', '\\]').replace('.', '\\.')
@@ -109,7 +108,10 @@ podTemplate(
             container('docker') {
                 sh("apk update && apk add --no-cache curl bash grep python3 py3-pip")
                 sh("pip3 install --user anchorecli && ln -s ~/.local/bin/anchore-cli /usr/local/bin")
-                verifyImage = sh(returnStdout: true, script: "anchore-cli image list | grep localbuild/${dockerImageFullNameTag}").trim()
+                def cmd = "anchore-cli image list | grep localbuild/${dockerImageFullNameTag}"
+                echo "${cmd}"
+                sh(cmd)
+                def verifyImage = sh(returnStdout: true, script: cmd).trim()
                 if (verifyImage.length() == 0) {
                     sh("curl -s https://ci-tools.anchore.io/inline_scan-latest | bash -s -- analyze -r http://anchore-anchore-engine-api.jenkins.svc.cluster.local:8228/v1 -u admin -p foobar -g ${dockerImageFullNameTag}")
                 }
