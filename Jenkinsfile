@@ -109,6 +109,7 @@ podTemplate(
             container('docker') {
                 sh("apk update && apk add --no-cache curl bash python3 py3-pip")
                 sh("pip3 install --user anchorecli && ln -s ~/.local/bin/anchore-cli /usr/local/bin")
+                sh("anchore-cli image list")
                 verifyImage = sh(returnStdout: true, script: "anchore-cli image list | grep localbuild/${dockerImageFullNameTag}").trim()
                 if (verifyImage.length() == 0) {
                     sh("curl -s https://ci-tools.anchore.io/inline_scan-latest | bash -s -- analyze -r http://anchore-anchore-engine-api.jenkins.svc.cluster.local:8228/v1 -u admin -p foobar -g ${dockerImageFullNameTag}")
