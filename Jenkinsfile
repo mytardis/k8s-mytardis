@@ -7,6 +7,7 @@ def dockerImageFullNameTag = ''
 def dockerImageFullNameLatestTag = ''
 def k8sDeploymentNamespace = 'mytardis'
 def gitInfo = ''
+def verifyImage = ''
 
 def updateProperty(property, value, file) {
     escapedProperty = property.replace('[', '\\[').replace(']', '\\]').replace('.', '\\.')
