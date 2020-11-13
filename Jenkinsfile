@@ -116,35 +116,35 @@ podTemplate(
                 sh("anchore-cli evaluate check localbuild/${dockerImageFullNameTag} --detail")
             }
         }
-        // stage('Push image to DockerHub') {
-        //     container('docker') {
-        //         sh("docker push ${dockerImageFullNameTag}")
-        //     }
-        // }
-        // stage('Tag and push :latest build') {
-        //     container('docker') {
-        //         dockerImageFullNameLatestTag = "${dockerHubAccount}/${dockerImageName}:latest"
-        //         sh("docker tag ${dockerImageFullNameTag} ${dockerImageFullNameLatestTag}")
-        //         sh("docker push ${dockerImageFullNameLatestTag}")
-        //     }
-        // }
-        // stage('Deploy image to Kubernetes') {
-        //     container('kubectl') {
-        //         dir('jobs') {
-        //             ['migrate', 'collectstatic'].each { item ->
-        //                 updateProperty(":[dockerImageFullNameTag]", dockerImageFullNameTag, "${item}.yaml")
-        //                 sh("kubectl -n ${k8sDeploymentNamespace} delete job/${item} --ignore-not-found")
-        //                 sh("kubectl create -f ${item}.yaml")
-        //                 sh("kubectl -n ${k8sDeploymentNamespace} wait --for=condition=complete --timeout=300s job/${item}")
-        //             }
-        //         }
-        //         def patch = '{"data":{"version":"' + gitInfo.inspect().replace('[', '{').replace(']', '}') + '"}}'
-        //         echo "patch: ${patch}"
-        //         sh("kubectl -n ${k8sDeploymentNamespace} patch configmap/version -p '" + patch.replace("'", '\\"') + "'")
-        //         ['mytardis', 'api', 'download', 'sftp', 'celery-worker', 'celery-beat'].each { item ->
-        //             sh("kubectl -n ${k8sDeploymentNamespace} set image deployment/${item} ${item}=${dockerImageFullNameTag}")
-        //         }
-        //     }
-        // }
+        stage('Push image to DockerHub') {
+            container('docker') {
+                sh("docker push ${dockerImageFullNameTag}")
+            }
+        }
+        stage('Tag and push :latest build') {
+            container('docker') {
+                dockerImageFullNameLatestTag = "${dockerHubAccount}/${dockerImageName}:latest"
+                sh("docker tag ${dockerImageFullNameTag} ${dockerImageFullNameLatestTag}")
+                sh("docker push ${dockerImageFullNameLatestTag}")
+            }
+        }
+        stage('Deploy image to Kubernetes') {
+            container('kubectl') {
+                dir('jobs') {
+                    ['migrate', 'collectstatic'].each { item ->
+                        updateProperty(":[dockerImageFullNameTag]", dockerImageFullNameTag, "${item}.yaml")
+                        sh("kubectl -n ${k8sDeploymentNamespace} delete job/${item} --ignore-not-found")
+                        sh("kubectl create -f ${item}.yaml")
+                        sh("kubectl -n ${k8sDeploymentNamespace} wait --for=condition=complete --timeout=300s job/${item}")
+                    }
+                }
+                def patch = '{"data":{"version":"' + gitInfo.inspect().replace('[', '{').replace(']', '}') + '"}}'
+                echo "patch: ${patch}"
+                sh("kubectl -n ${k8sDeploymentNamespace} patch configmap/version -p '" + patch.replace("'", '\\"') + "'")
+                ['mytardis', 'api', 'download', 'sftp', 'celery-worker', 'celery-beat'].each { item ->
+                    sh("kubectl -n ${k8sDeploymentNamespace} set image deployment/${item} ${item}=${dockerImageFullNameTag}")
+                }
+            }
+        }
     }
 }
