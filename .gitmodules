@@ -1,7 +1,7 @@
 [submodule "submodules/mytardis"]
     path = submodules/mytardis
-    url = https://github.com/mytardis/mytardis.git
-    branch = chunked_upload
+    url = https://github.com/manishkumr/mytardis.git
+    branch = hsm_app
 [submodule "submodules/mytardis-app-mydata"]
     path = submodules/mytardis-app-mydata
     url = https://github.com/mytardis/mytardis-app-mydata.git
