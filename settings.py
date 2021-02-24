@@ -29,7 +29,7 @@ DATABASES['default'] = {
 }
 
 CELERY_RESULT_BACKEND = 'rpc://'
-BROKER_URL = 'rpc://%(user)s:%(password)s@%(host)s:%(port)s/%(vhost)s' % {
+BROKER_URL = 'amqp://%(user)s:%(password)s@%(host)s:%(port)s/%(vhost)s' % {
     'host': data['rabbitmq']['host'],
     'port': data['rabbitmq']['port'],
     'user': data['rabbitmq']['user'],
