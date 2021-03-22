@@ -1,0 +1,30 @@
+name: build
+on:
+  push:
+    branches:
+      - master
+      - qat
+      - test
+  pull_request:
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build images for production
+        run: |
+          docker build -t docker.io/mytardis-docker/mytardis-docker:${{ github.sha }} . --target=production
+
+      - name: Run Trivy vulnerability scanner on container
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'docker.io/mytardis-docker/mytardis-docker:${{ github.sha }}'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+        continue-on-error: true
