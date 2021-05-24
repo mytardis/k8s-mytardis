@@ -28,7 +28,7 @@ DATABASES['default'] = {
     'CONN_MAX_AGE': data['postgres'].get('conn_max_age')  # None means re-use connections
 }
 
-CELERY_RESULT_BACKEND = 'amqp'
+CELERY_RESULT_BACKEND = 'rpc://'
 BROKER_URL = 'amqp://%(user)s:%(password)s@%(host)s:%(port)s/%(vhost)s' % {
     'host': data['rabbitmq']['host'],
     'port': data['rabbitmq']['port'],
