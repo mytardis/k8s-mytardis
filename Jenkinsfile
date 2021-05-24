@@ -28,8 +28,8 @@ podTemplate(
                 envVar(key: 'ANCHORE_CLI_USER', value: 'admin'),
                 envVar(key: 'ANCHORE_CLI_PASS', value: 'foobar')
             ],
-            resourceRequestCpu: '1000m',
-            resourceRequestMemory: '2Gi'
+            resourceRequestCpu: '2000m',
+            resourceRequestMemory: '4Gi'
         ),
         containerTemplate(
             name: 'postgres',
@@ -41,7 +41,7 @@ podTemplate(
         ),
         containerTemplate(
             name: 'kubectl',
-            image: 'lachlanevenson/k8s-kubectl:v1.13.0',
+            image: 'lachlanevenson/k8s-kubectl:v1.20.5',
             ttyEnabled: true,
             command: 'cat',
             envVars: [
