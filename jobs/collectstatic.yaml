@@ -23,12 +23,12 @@ spec:
           - name: settings
             mountPath: /app/tardis/settings.yaml
             subPath: settings.yaml
-          - name: nfs-static-files
+          - name: static-files
             mountPath: /srv/static
       volumes:
       - name: settings
         configMap:
           name: mytardis
-      - name: nfs-static-files
+      - name: static-files
         persistentVolumeClaim:
-          claimName: nfs-static-files
+          claimName: nfs-static
