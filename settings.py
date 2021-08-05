@@ -29,7 +29,7 @@ DATABASES['default'] = {
 }
 
 CELERY_RESULT_BACKEND = 'rpc://'
-BROKER_URL = 'amqp://%(user)s:%(password)s@%(host)s:%(port)s/%(vhost)s' % {
+CELERY_BROKER_URL = 'amqp://%(user)s:%(password)s@%(host)s:%(port)s/%(vhost)s' % {
     'host': data['rabbitmq']['host'],
     'port': data['rabbitmq']['port'],
     'user': data['rabbitmq']['user'],
@@ -57,7 +57,7 @@ for user in data['managers']:
 INSTALLED_APPS += tuple(data['installed_apps'])
 
 
-CELERY_QUEUES += (
+CELERY_TASK_QUEUES += (
     Queue('filters', Exchange('filters'),
           routing_key='filters',
           queue_arguments={'x-max-priority': MAX_TASK_PRIORITY}),
@@ -166,9 +166,9 @@ if 'sentry_dsn' in data:
         integrations=[DjangoIntegration()]
     )
 
-CELERYBEAT_SCHEDULE = {}
+CELERY_BEAT_SCHEDULE = {}
 for name, params in data.get('celerybeat_schedule', {}).items():
-    CELERYBEAT_SCHEDULE[name] = {
+    CELERY_BEAT_SCHEDULE[name] = {
         'task': params['task'],
         'schedule': timedelta(
             days=params['schedule'].get('days', 0),
