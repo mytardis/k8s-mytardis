@@ -1,4 +1,4 @@
-FROM ubuntu:18.04 AS build
+FROM ubuntu:20.04 AS build
 
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE DontWarn
 ENV DEBIAN_FRONTEND noninteractive
@@ -69,7 +69,7 @@ COPY submodules/mytardis/assets/ assets/
 COPY submodules/mytardis/.babelrc ./
 
 # Install NodeJS packages
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
     apt-get -yqq update && \
     apt-get -yqq install --no-install-recommends -o=Dpkg::Use-Pty=0 \
         nodejs \
