@@ -1,6 +1,6 @@
-PyYAML==5.4
-sentry-sdk==0.14.1
-elastic-apm==5.5.2
+PyYAML==5.4.1
+sentry-sdk==1.1.0
+elastic-apm==6.1.3
 
 ##############################################################################
 # Site-specific pip requirements                                             #
@@ -10,4 +10,4 @@ elastic-apm==5.5.2
 # somewhere else, e.g. a ConfigMap populated by the Jenkinsfile in a Monash  #
 # specific branch of the k8s-config repository.                              #
 ##############################################################################
-git+https://github.com/jameswettenhall/Monash_OpenID_Login@133e218e6781063fc05f9db0b0f7cabb2f514c9d#egg=monash_openid_login
+git+https://github.com/monash-merc/Monash_OpenID_Login@61cd2d4404e6bad94552147e87fbbe5e5b66bd58#egg=monash_openid_login
