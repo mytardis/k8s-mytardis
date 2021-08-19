@@ -56,7 +56,7 @@ for user in data['managers']:
 INSTALLED_APPS += tuple(data['installed_apps'])
 
 
-CELERY_QUEUES += (
+CELERY_TASK_QUEUES += (
     Queue('filters', Exchange('filters'),
           routing_key='filters',
           queue_arguments={'x-max-priority': MAX_TASK_PRIORITY}),
