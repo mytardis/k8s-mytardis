@@ -28,8 +28,8 @@ DATABASES['default'] = {
     'CONN_MAX_AGE': data['postgres'].get('conn_max_age')  # None means re-use connections
 }
 
-CELERY_RESULT_BACKEND = 'amqp'
-BROKER_URL = 'amqp://%(user)s:%(password)s@%(host)s:%(port)s/%(vhost)s' % {
+CELERY_RESULT_BACKEND = 'rpc://'
+CELERY_BROKER_URL = 'amqp://%(user)s:%(password)s@%(host)s:%(port)s/%(vhost)s' % {
     'host': data['rabbitmq']['host'],
     'port': data['rabbitmq']['port'],
     'user': data['rabbitmq']['user'],
@@ -168,9 +168,9 @@ if 'sentry_dsn' in data:
         integrations=[DjangoIntegration()]
     )
 
-CELERYBEAT_SCHEDULE = {}
+CELERY_BEAT_SCHEDULE = {}
 for name, params in data.get('celerybeat_schedule', {}).items():
-    CELERYBEAT_SCHEDULE[name] = {
+    CELERY_BEAT_SCHEDULE[name] = {
         'task': params['task'],
         'schedule': timedelta(
             days=params['schedule'].get('days', 0),
