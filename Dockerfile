@@ -67,7 +67,7 @@ COPY submodules/mytardis/package-lock.json ./
 COPY submodules/mytardis/webpack.config.js ./
 COPY submodules/mytardis/assets/ assets/
 COPY submodules/mytardis/.babelrc ./
-COPY submodule/mytardis/tardis/apps/publication_workflow/components/index.jsx ./tardis/apps/publication_workflow/components/index.jsx
+COPY submodules/mytardis/tardis/apps/publication_workflow/components/index.jsx ./tardis/apps/publication_workflow/components/index.jsx
 # Install NodeJS packages
 RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
     apt-get -yqq update && \
