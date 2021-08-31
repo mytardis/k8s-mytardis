@@ -23,7 +23,7 @@ COPY requirements.txt \
      ./
 COPY submodules/mytardis/tardis/apps/social_auth/requirements.txt ./requirements-auth.txt
 COPY submodules/mytardis-app-mydata/requirements.txt ./requirements-mydata.txt
-
+COPY submodules/mytardis/tardis/apps/publication_workflow/requirements.txt ./requirements-pub-workflow.txt
 # Install Python packages
 RUN sed -i 's/archive/au.archive/g' /etc/apt/sources.list && \
     apt-get -yqq update && \
@@ -51,6 +51,7 @@ RUN sed -i 's/archive/au.archive/g' /etc/apt/sources.list && \
         requirements-ldap.txt \
         requirements-auth.txt \
         requirements-mydata.txt \
+        requirements-pub-workflow.txt \
         > /tmp/requirements.txt && \
     cat /tmp/requirements.txt | egrep -v '^\s*(#|$)' | sort && \
     pip3 install --upgrade pip setuptools && \
