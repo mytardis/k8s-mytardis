@@ -1,4 +1,4 @@
-FROM ubuntu:18.04 AS build
+FROM ubuntu:20.04 AS build
 
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE DontWarn
 ENV DEBIAN_FRONTEND noninteractive
@@ -39,8 +39,6 @@ RUN apt-get -yqq update && \
         libmagickwand-dev \
         libglu1-mesa-dev \
         libxi6 \
-        libxss1 \
-        libxtst6 \
         lsof \
         mc \
         ncdu \
@@ -71,7 +69,7 @@ COPY submodules/mytardis/assets/ assets/
 COPY submodules/mytardis/.babelrc ./
 
 # Install NodeJS packages
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
     apt-get -yqq update && \
     apt-get -yqq install --no-install-recommends -o=Dpkg::Use-Pty=0 \
         nodejs \
@@ -92,6 +90,7 @@ COPY submodules/mytardis/ ./
 COPY submodules/mytardis-app-mydata/ tardis/apps/mydata/
 
 # Copy k8s-related code
+COPY about.html ./tardis/tardis_portal/templates/tardis_portal/about_sdm.html
 COPY settings.py ./tardis/
 COPY beat.py ./
 COPY entrypoint.sh ./
@@ -117,6 +116,8 @@ COPY submodules/mytardis/requirements-test.txt \
 # Install Python packages and utilities
 RUN apt-get -yqq update && \
     apt-get -yqq install --no-install-recommends -o=Dpkg::Use-Pty=0 \
+        libxss1 \
+        libxtst6 \
         google-chrome-stable \
         gcc \
         unzip \
