@@ -53,7 +53,7 @@ RUN apt-get -yqq update && \
         requirements-mydata.txt \
         > /tmp/requirements.txt && \
     cat /tmp/requirements.txt | egrep -v '^\s*(#|$)' | sort && \
-    pip3 install --upgrade pip setuptools && \
+    pip3 install --user --upgrade pip setuptools && \
     pip3 install --no-cache-dir -q -r /tmp/requirements.txt && \
     apt-get -y remove --purge \
         gcc \
