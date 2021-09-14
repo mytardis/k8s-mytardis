@@ -51,7 +51,7 @@ RUN sed -i 's/archive/au.archive/g' /etc/apt/sources.list && \
         requirements-ldap.txt \
         requirements-auth.txt \
         requirements-mydata.txt \
-        requirements-pub-workflow.txt \
+#        requirements-pub-workflow.txt \
         > /tmp/requirements.txt && \
     cat /tmp/requirements.txt | egrep -v '^\s*(#|$)' | sort && \
     pip3 install --upgrade pip setuptools && \
