@@ -23,7 +23,7 @@ COPY requirements.txt \
      ./
 COPY submodules/mytardis/tardis/apps/social_auth/requirements.txt ./requirements-auth.txt
 COPY submodules/mytardis-app-mydata/requirements.txt ./requirements-mydata.txt
-COPY submodules/mytardis/tardis/apps/publication_workflow/requirements.txt ./requirements-pub-workflow.txt
+#COPY submodules/mytardis/tardis/apps/publication_workflow/requirements.txt ./requirements-pub-workflow.txt
 # Install Python packages
 RUN sed -i 's/archive/au.archive/g' /etc/apt/sources.list && \
     apt-get -yqq update && \
@@ -68,7 +68,7 @@ COPY submodules/mytardis/package-lock.json ./
 COPY submodules/mytardis/webpack.config.js ./
 COPY submodules/mytardis/assets/ assets/
 COPY submodules/mytardis/.babelrc ./
-COPY submodules/mytardis/tardis/apps/publication_workflow/ ./tardis/apps/publication_workflow/
+#COPY submodules/mytardis/tardis/apps/publication_workflow/ ./tardis/apps/publication_workflow/
 # Install NodeJS packages
 RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
     apt-get -yqq update && \
