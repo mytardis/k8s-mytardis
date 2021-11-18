@@ -10,4 +10,4 @@ elastic-apm==6.1.3
 # somewhere else, e.g. a ConfigMap populated by the Jenkinsfile in a Monash  #
 # specific branch of the k8s-config repository.                              #
 ##############################################################################
-git+https://github.com/monash-merc/Monash_OpenID_Login@5f7db6ea9ae9138b146c08483c246d2fc8294903#egg=monash_openid_login
+git+https://github.com/monash-merc/Monash_OpenID_Login@dfa7c0df4089fdeb7e0258956dda15438afb8fcb#egg=monash_openid_login
