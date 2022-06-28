@@ -23,7 +23,7 @@ COPY requirements.txt \
      ./
 COPY submodules/mytardis/tardis/apps/social_auth/requirements.txt ./requirements-auth.txt
 COPY submodules/mytardis-app-mydata/requirements.txt ./requirements-mydata.txt
-#COPY submodules/mytardis/tardis/apps/publication_workflow/requirements.txt ./requirements-pub-workflow.txt
+COPY submodules/mytardis/tardis/apps/publication_workflow/requirements.txt ./requirements-pub-workflow.txt
 # Install Python packages
 RUN sed -i 's/archive/au.archive/g' /etc/apt/sources.list && \
     apt-get -yqq update && \
@@ -51,7 +51,7 @@ RUN sed -i 's/archive/au.archive/g' /etc/apt/sources.list && \
         requirements-ldap.txt \
         requirements-auth.txt \
         requirements-mydata.txt \
-#        requirements-pub-workflow.txt \
+        requirements-pub-workflow.txt \
         > /tmp/requirements.txt && \
     cat /tmp/requirements.txt | egrep -v '^\s*(#|$)' | sort && \
     pip3 install --upgrade pip setuptools && \
@@ -68,14 +68,14 @@ COPY submodules/mytardis/package-lock.json ./
 COPY submodules/mytardis/webpack.config.js ./
 COPY submodules/mytardis/assets/ assets/
 COPY submodules/mytardis/.babelrc ./
-#COPY submodules/mytardis/tardis/apps/publication_workflow/ ./tardis/apps/publication_workflow/
+COPY submodules/mytardis/tardis/apps/publication_workflow/ ./tardis/apps/publication_workflow/
 # Install NodeJS packages
-RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
-    apt-get -yqq update && \
-    apt-get -yqq install --no-install-recommends -o=Dpkg::Use-Pty=0 \
-        nodejs \
-    > /dev/null 2>&1 && \
-    npm install --production --no-cache --quiet --depth 0 && \
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y nodejs && apt-get install -y npm
+
+RUN npm install -g
+
+RUN npm install webpack-cli  && npm install webpack-bundle-tracker@1.1.0 && \
     npm run-script build --no-cache --quiet && \
     rm -rf /app/node_modules && \
     rm -rf /app/false && \
@@ -143,6 +143,9 @@ RUN CHROMEDRIVER_VERSION=`curl -sS https://chromedriver.storage.googleapis.com/L
     ln -fs /opt/chromedriver-$CHROMEDRIVER_VERSION/chromedriver /usr/local/bin/chromedriver
 
 # Install NodeJS packages
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y nodejs && apt-get install -y npm
+
 RUN apt-get -yqq update && \
     apt-get -yqq install --no-install-recommends -o=Dpkg::Use-Pty=0 \
         nodejs \
@@ -162,6 +165,7 @@ COPY submodules/mytardis/ \
      submodules/mytardis/.eslintrc \
      ./
 COPY submodules/mytardis-app-mydata/ tardis/apps/mydata/
+COPY settings.py ./tardis/
 
 # This will keep container running...
 CMD ["tail", "-f", "/dev/null"]
