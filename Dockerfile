@@ -99,7 +99,7 @@ RUN chown -R mytardis:mytardis /app
 USER mytardis
 EXPOSE 8000
 
-RUN python manage.py collectstatic --noinput
+RUN python3 manage.py collectstatic --noinput
 
 CMD ["sh", "entrypoint.sh"]
 
