@@ -15,6 +15,8 @@ RUN mkdir -p /app && \
 
 WORKDIR /app
 
+RUN mkdir -p srv/storage
+
 # Copy Python requirements
 COPY requirements.txt \
      submodules/mytardis/requirements-base.txt \
@@ -166,8 +168,6 @@ COPY submodules/mytardis/ \
      ./
 COPY submodules/mytardis-app-mydata/ tardis/apps/mydata/
 COPY settings.py ./tardis/
-
-RUN python3 manage.py collectstatic --noinput
 
 # This will keep container running...
 CMD ["tail", "-f", "/dev/null"]
