@@ -159,6 +159,8 @@ RUN apt-get -yqq update && \
 # Create default storage
 RUN mkdir -p var/store
 
+RUN mkdir -p var/storage
+
 # Copy app code
 COPY submodules/mytardis/ \
      submodules/mytardis/.pylintrc \
