@@ -167,7 +167,7 @@ COPY submodules/mytardis/ \
 COPY submodules/mytardis-app-mydata/ tardis/apps/mydata/
 COPY settings.py ./tardis/
 
-RUN python manage.py collectstatic --noinput
+RUN python3 manage.py collectstatic --noinput
 
 # This will keep container running...
 CMD ["tail", "-f", "/dev/null"]
