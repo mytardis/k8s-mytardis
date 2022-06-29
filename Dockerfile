@@ -15,8 +15,6 @@ RUN mkdir -p /app && \
 
 WORKDIR /app
 
-RUN mkdir -p srv/storage
-
 # Copy Python requirements
 COPY requirements.txt \
      submodules/mytardis/requirements-base.txt \
