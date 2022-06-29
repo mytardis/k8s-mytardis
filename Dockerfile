@@ -99,6 +99,8 @@ RUN chown -R mytardis:mytardis /app
 USER mytardis
 EXPOSE 8000
 
+RUN python manage.py collectstatic --noinput
+
 CMD ["sh", "entrypoint.sh"]
 
 FROM build AS test
@@ -166,8 +168,6 @@ COPY submodules/mytardis/ \
      ./
 COPY submodules/mytardis-app-mydata/ tardis/apps/mydata/
 COPY settings.py ./tardis/
-
-RUN python3 manage.py collectstatic --noinput
 
 # This will keep container running...
 CMD ["tail", "-f", "/dev/null"]
