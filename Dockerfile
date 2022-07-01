@@ -13,8 +13,6 @@ RUN mkdir -p /app && \
     groupadd -r -g 1001 mytardis && \
     useradd -r -m -u 1001 -g 1001 mytardis
 
-RUN mkdir -p srv/storage
-
 WORKDIR /app
 
 # Copy Python requirements
