@@ -104,7 +104,7 @@ podTemplate(
             }
         }
         parallel tests
-        stage('Build image for production') {
+        stage('Build image for qat') {
             container('docker') {
                 sh("docker build . --tag ${dockerImageFullNameTag} --target=production")
             }

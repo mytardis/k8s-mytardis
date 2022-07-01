@@ -14,6 +14,7 @@ RUN mkdir -p /app && \
     useradd -r -m -u 1001 -g 1001 mytardis
 
 RUN mkdir -p srv/storage
+RUN chown -R mytardis:mytardis /srv/storage
 
 WORKDIR /app
 
