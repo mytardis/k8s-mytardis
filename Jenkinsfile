@@ -81,29 +81,29 @@ podTemplate(
                 gitInfo['tag'] = sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%h"').trim()
             }
         }
-        stage('Build image for tests') {
-            container('docker') {
-                sh("docker build . --tag ${dockerImageFullNameTag} --target=test")
-            }
-        }
-        def tests = [:]
-        [
-            // 'npm': "docker run ${dockerImageFullNameTag} npm test",
-            // 'behave': "docker run ${dockerImageFullNameTag} python3 manage.py behave --settings=tardis.test_settings",
-            // 'pylint': "docker run ${dockerImageFullNameTag} pylint --rcfile .pylintrc --django-settings-module=tardis.test_settings tardis",
-            'memory': "docker run ${dockerImageFullNameTag} python3 test.py test --settings=tardis.test_settings",
-            'postgres': "docker run --add-host pg:${ip} ${dockerImageFullNameTag} python3 test.py test --settings=tardis.test_on_postgresql_settings",
-            // 'mysql': "docker run --add-host mysql:${ip} ${dockerImageFullNameTag} python3 test.py test --settings=tardis.test_on_mysql_settings"
-        ].each { name, command ->
-            tests[name] = {
-                stage("Run test - ${name}") {
-                    container('docker') {
-                        sh(command)
-                    }
-                }
-            }
-        }
-        parallel tests
+        // stage('Build image for tests') {
+        //     container('docker') {
+        //         sh("docker build . --tag ${dockerImageFullNameTag} --target=test")
+        //     }
+        // }
+        // def tests = [:]
+        // [
+        //     // 'npm': "docker run ${dockerImageFullNameTag} npm test",
+        //     // 'behave': "docker run ${dockerImageFullNameTag} python3 manage.py behave --settings=tardis.test_settings",
+        //     // 'pylint': "docker run ${dockerImageFullNameTag} pylint --rcfile .pylintrc --django-settings-module=tardis.test_settings tardis",
+        //     'memory': "docker run ${dockerImageFullNameTag} python3 test.py test --settings=tardis.test_settings",
+        //     'postgres': "docker run --add-host pg:${ip} ${dockerImageFullNameTag} python3 test.py test --settings=tardis.test_on_postgresql_settings",
+        //     // 'mysql': "docker run --add-host mysql:${ip} ${dockerImageFullNameTag} python3 test.py test --settings=tardis.test_on_mysql_settings"
+        // ].each { name, command ->
+        //     tests[name] = {
+        //         stage("Run test - ${name}") {
+        //             container('docker') {
+        //                 sh(command)
+        //             }
+        //         }
+        //     }
+        // }
+        // parallel tests
         stage('Build image for qat') {
             container('docker') {
                 sh("docker build . --tag ${dockerImageFullNameTag} --target=production")
