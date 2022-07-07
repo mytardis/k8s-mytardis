@@ -16,6 +16,9 @@ RUN mkdir -p /app && \
 RUN mkdir -p srv/storage
 RUN chown -R mytardis:mytardis /srv/storage
 
+RUN mkdir -p srv/static
+RUN chown -R mytardis:mytardis /srv/static
+
 WORKDIR /app
 
 # Copy Python requirements
