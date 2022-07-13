@@ -61,7 +61,7 @@ podTemplate(
 ) {
     node(workerLabel) {
         def ip = sh(returnStdout: true, script: 'hostname -i').trim()
-        stage('Clean up resources') {
+        stage('Clean up resources 1') {
             container('docker') {
                 sh("docker system prune -f")
             }
