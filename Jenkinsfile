@@ -104,6 +104,11 @@ podTemplate(
             }
         }
         parallel tests
+        stage('Clean up resources') {
+            container('docker') {
+                sh("docker system prune -f")
+            }
+        }
         stage('Build image for qat') {
             container('docker') {
                 sh("docker build . --tag ${dockerImageFullNameTag} --target=production")
@@ -130,11 +135,6 @@ podTemplate(
                 ['mytardis', 'sftp', 'celery-worker', 'celery-beat'].each { item ->
                     sh("kubectl -n ${k8sDeploymentNamespace} set image deployment/${item} ${item}=${dockerImageFullNameTag}")
                 }
-            }
-        }
-        stage('Clean up resources') {
-            container('docker') {
-                sh("docker system prune -f")
             }
         }
     }
