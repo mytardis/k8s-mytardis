@@ -81,16 +81,16 @@ podTemplate(
                 gitInfo['tag'] = sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%h"').trim()
             }
         }
-        stage('Clean up resources') {
-            container('docker') {
-                sh("docker system prune -f")
-            }
-        }
-        // stage('Build image for tests') {
+        // stage('Clean up resources') {
         //     container('docker') {
-        //         sh("docker build . --tag ${dockerImageFullNameTag} --target=test")
+        //         sh("docker system prune -f")
         //     }
         // }
+        stage('Build image for tests') {
+            container('docker') {
+                sh("docker build . --tag ${dockerImageFullNameTag} --target=test")
+            }
+        }
         def tests = [:]
         [
             'npm': "docker run ${dockerImageFullNameTag} npm test",
