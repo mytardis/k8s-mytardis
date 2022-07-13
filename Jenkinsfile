@@ -88,7 +88,7 @@ podTemplate(
         }
         def tests = [:]
         [
-            //'npm': "docker run ${dockerImageFullNameTag} npm test",
+            'npm': "docker run ${dockerImageFullNameTag} npm test",
             // 'behave': "docker run ${dockerImageFullNameTag} python3 manage.py behave --settings=tardis.test_settings",
             'pylint': "docker run ${dockerImageFullNameTag} pylint --rcfile .pylintrc --django-settings-module=tardis.test_settings tardis",
             'memory': "docker run ${dockerImageFullNameTag} python3 test.py test --settings=tardis.test_settings",
