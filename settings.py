@@ -1,11 +1,11 @@
+# noqa # pylint: disable=W0401,W0614, R1721
+from datetime import timedelta
+import json
 import os
 import yaml
-import json
-from datetime import timedelta
 
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
-
 from .default_settings import *
 
 settings_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)),
