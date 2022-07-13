@@ -61,11 +61,6 @@ podTemplate(
 ) {
     node(workerLabel) {
         def ip = sh(returnStdout: true, script: 'hostname -i').trim()
-        stage('Clean up resources 1') {
-            container('docker') {
-                sh("docker system prune -f")
-            }
-        }
         stage('Clone repository') {
             checkout scm
             // git url: 'https://github.com/mytardis/k8s-mytardis', branch: 'master'
@@ -86,11 +81,16 @@ podTemplate(
                 gitInfo['tag'] = sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%h"').trim()
             }
         }
-        stage('Build image for tests') {
+        stage('Clean up resources') {
             container('docker') {
-                sh("docker build . --tag ${dockerImageFullNameTag} --target=test")
+                sh("docker system prune -f")
             }
         }
+        // stage('Build image for tests') {
+        //     container('docker') {
+        //         sh("docker build . --tag ${dockerImageFullNameTag} --target=test")
+        //     }
+        // }
         def tests = [:]
         [
             'npm': "docker run ${dockerImageFullNameTag} npm test",
