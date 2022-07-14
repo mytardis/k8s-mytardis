@@ -132,7 +132,7 @@ podTemplate(
                 }
             }
         }
-        stage('Clean up resources') {
+        stage('Clean up Docker resources') {
             container('docker') {
                 sh("docker system prune -f")
             }
