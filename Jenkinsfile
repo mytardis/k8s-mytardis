@@ -81,11 +81,6 @@ podTemplate(
                 gitInfo['tag'] = sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%h"').trim()
             }
         }
-        // stage('Clean up resources') {
-        //     container('docker') {
-        //         sh("docker system prune -f")
-        //     }
-        // }
         stage('Build image for tests') {
             container('docker') {
                 sh("docker build . --tag ${dockerImageFullNameTag} --target=test")
@@ -135,6 +130,11 @@ podTemplate(
                 ['mytardis', 'sftp', 'celery-worker', 'celery-beat'].each { item ->
                     sh("kubectl -n ${k8sDeploymentNamespace} set image deployment/${item} ${item}=${dockerImageFullNameTag}")
                 }
+            }
+        }
+        stage('Clean up resources') {
+            container('docker') {
+                sh("docker system prune -f")
             }
         }
     }
