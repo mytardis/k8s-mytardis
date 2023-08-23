@@ -23,6 +23,7 @@ COPY requirements.txt \
      ./
 COPY submodules/mytardis/tardis/apps/social_auth/requirements.txt ./requirements-auth.txt
 COPY submodules/mytardis-app-mydata/requirements.txt ./requirements-mydata.txt
+COPY submodules/mytardis/tardis/apps/publication_workflow/requirements.txt ./requirements-publication.txt
 
 # Install Python packages
 RUN apt-get -yqq update && \
@@ -51,6 +52,7 @@ RUN apt-get -yqq update && \
         requirements-ldap.txt \
         requirements-auth.txt \
         requirements-mydata.txt \
+        requirements-publication.txt \
         > /tmp/requirements.txt && \
     cat /tmp/requirements.txt | egrep -v '^\s*(#|$)' | sort && \
     python3 --version && \
@@ -72,12 +74,12 @@ COPY submodules/mytardis/assets/ assets/
 COPY submodules/mytardis/.babelrc ./
 
 # Install NodeJS packages
-RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
-    apt-get -yqq update && \
-    apt-get -yqq install --no-install-recommends -o=Dpkg::Use-Pty=0 \
-        nodejs \
-    > /dev/null 2>&1 && \
-    npm install --production --no-cache --quiet --depth 0 && \
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y nodejs && apt-get install -y npm
+
+RUN npm install -g
+
+RUN npm install webpack-cli  && npm install webpack-bundle-tracker@1.1.0 && \
     npm run-script build --no-cache --quiet && \
     rm -rf /app/node_modules && \
     rm -rf /app/false && \

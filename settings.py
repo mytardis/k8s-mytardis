@@ -146,6 +146,16 @@ LDAP_BASE = data.get('ldap_base', '')
 LDAP_USER_BASE = data.get('ldap_user_base', '')
 LDAP_GROUP_BASE = data.get('ldap_group_base', '')
 
+# DOI mint configuration
+DOI_MINT_ENABLED = data.get('doi_mint_enabled', False)
+DOI_ENDPOINT = data.get('doi_endpoint', '')
+DOI_PREFIX = data.get('doi_prefix', '')
+DOI_EVENT = data.get('doi_event', 'draft')
+DOI_USERNAME = data.get('doi_user_name', '')
+DOI_PASSWORD = data.get('doi_password', '')
+DOI_PUBLISHER = data.get('doi_publisher', '')
+DOI_MINT_ROOT_URL = data.get('doi_mint_root_url', '')
+
 # Overridable login views
 if 'login_views' in data:
     LOGIN_VIEWS_FROM_YAML = data.get('login_views')
