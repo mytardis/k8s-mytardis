@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: download
+  namespace: mytardis
+spec:
+  selector:
+    matchLabels:
+      app: download
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: download
+        ver: 0.0.1
+    spec:
+      containers:
+        - name: download
+          image: [dockerImageFullNameTag]
+          imagePullPolicy: Always
+          command:
+            - gunicorn
+            - wsgi:application
+            - --bind=:8000
+            - --workers=3
+            - --worker-class=gevent
+            - --timeout=600
+            - --log-level=error
+            - --log-file=-
+            - --worker-tmp-dir=/dev/shm
+          env:
+            - name: MYTARDIS_VERSION
+              valueFrom:
+                configMapKeyRef:
+                  name: version
+                  key: version
+            - name: SENTRY_DSN
+              valueFrom:
+                configMapKeyRef:
+                  key: sentry_dsn
+                  name: mytardis
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: tz-config
+              mountPath: /etc/localtime
+            - name: settings
+              mountPath: /app/tardis/settings.yaml
+              subPath: settings.yaml
+            - name: var-log
+              mountPath: /var/log
+            - mountPath: /srv/metadata
+              name: nfs-metadata
+            - mountPath: /srv/static
+              name: nfs-static
+            - name: stormon-test-vault
+              mountPath: /srv/stormon-test-vault
+            - name: smb-stormon-test
+              mountPath: /srv/stormon-test
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: 200m
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            periodSeconds: 30
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 5
+      volumes:
+        - name: tz-config
+          hostPath:
+            path: /usr/share/zoneinfo/Australia/Melbourne
+        - name: settings
+          configMap:
+            name: mytardis
+        - name: var-log
+          hostPath:
+            path: /var/log
+        - name: nfs-metadata
+          persistentVolumeClaim:
+            claimName: nfs-metadata
+        - name: nfs-static
+          persistentVolumeClaim:
+            claimName: nfs-static
+        - name: stormon-test-vault
+          persistentVolumeClaim:
+            claimName: stormon-test-vault
+        - name: smb-stormon-test
+          persistentVolumeClaim:
+            claimName: smb-stormon-test
