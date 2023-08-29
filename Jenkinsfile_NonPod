@@ -1,0 +1,133 @@
+def stackName = 'pre-prod'
+def dockerHubAccount = 'mytardis'
+def dockerImageName = "k8s-mytardis-${stackName}"
+def dockerImageTag = ''
+def dockerImageFullNameTag = ''
+def dockerImageFullNameLatestTag = "${dockerHubAccount}/${dockerImageName}:latest"
+def k8sDeploymentNamespace = 'mytardis'
+def gitInfo = []
+
+def updateProperty(property, value, file) {
+    escapedProperty = property.replace('[', '\\[').replace(']', '\\]').replace('.', '\\.')
+    sh("sed -i 's|$escapedProperty|$value|g' $file")
+}
+
+pipeline {
+    agent any
+    environment {// slack notification settings variables
+        SLACK_CHANNEL = "#jenkins-dev"
+        SLACK_TEAM_DOMAIN = "mercappteam"
+        SLACK_TOKEN = credentials("jenkins_slack_token")
+        BUILD_SUCCESS_MSG = "k8s-mytardis docker image has been built successfully at mytardis docker huber vm."
+        BUILD_FAILURE_MSG = "Failed to build k8s-mytardis docker image at mytardis docker huber vm."
+    }
+    stages {
+        stage("Build Mytardis Kubernates Docker image and update Kubernates deployment in test cluster") {
+            agent { node { label 'mytardis-pre-prod' } }
+            steps {
+                echo 'Checkout k8s-mytardis repo ...'
+                checkout([$class: 'GitSCM', branches: [[name: '*/pre-prod']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/mytardis/k8s-mytardis.git']]])
+                echo "$WORKSPACE"
+                echo "update submodule"
+                sh 'git submodule update --init --recursive'
+
+                echo "checkout mytardis branch"
+                dir('submodules/mytardis') {
+                    sh 'git rev-parse --abbrev-ref HEAD'
+                    sh 'git checkout dev_v4.6.0'
+                    script{
+                        gitInfo = [
+                            'commit_id': sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%H"').trim(),
+                            'date': sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%cd" --date=rfc').trim(),
+                            'branch': sh(returnStdout: true, script: 'git rev-parse --abbrev-ref HEAD').trim(),
+                            'tag': 'pre-prod'
+                        ]
+                        dockerImageTag = sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%h"').trim()
+                        dockerImageFullNameTag = "${dockerHubAccount}/${dockerImageName}:${dockerImageTag}"
+                    }
+                }
+                
+                echo "dockerImageFullNameTag: ${dockerImageFullNameTag}"
+                
+                echo "dockerImageFullNameLatestTag: ${dockerImageFullNameLatestTag}"
+
+                echo "start to build docker image for mytardis"
+                dir("$WORKSPACE"){
+                    // login to docker first
+                    sh("docker login -u ${docker_user} -p ${password}")
+                    // build docker image
+                    sh("docker build . --tag ${dockerImageFullNameTag} --target=production")
+                    // push to docker hub
+                    sh("docker push ${dockerImageFullNameTag}")
+                    // tag it as latest one
+                    sh("docker tag ${dockerImageFullNameTag} ${dockerImageFullNameLatestTag}")
+                    // push the latest one into docker hub
+                    sh("docker push ${dockerImageFullNameLatestTag}")
+                }
+
+                echo "start to update mytardis version configmap"
+                dir("$WORKSPACE"){
+                    script{
+                        def v_patch = '{"data":{"version":"' + gitInfo.inspect().replace('[', '{').replace(']', '}') + '"}}'
+                        echo "v_patch: ${v_patch}"
+
+                        sh("kubectl -n ${k8sDeploymentNamespace} patch configmap/version -p '" + v_patch.replace("'", '\\"') + "'")
+                    }
+                }
+
+                echo "start to update jobs and update image"
+                dir("$WORKSPACE/jobs"){
+                  script {
+                      ['migrate', 'collectstatic'].each { item ->
+                            updateProperty(":[dockerImageFullNameTag]", dockerImageFullNameLatestTag, "${item}.yaml")
+                            echo "${item}.yaml"
+                            sh("kubectl -n ${k8sDeploymentNamespace} delete job/${item} --ignore-not-found")
+                            sh("kubectl create -f ${item}.yaml")
+                            sh("kubectl -n ${k8sDeploymentNamespace} wait --for=condition=complete --timeout=300s job/${item}")
+                        }
+                        // update deployment to set the image
+                        ['mytardis', 'api', 'download', 'celery-worker', 'celery-beat'].each { item ->
+                            sh("kubectl -n ${k8sDeploymentNamespace} set image deployment/${item} ${item}=${dockerImageFullNameLatestTag}")
+                        }
+                  }
+                }
+
+                echo "start to update deployment"
+                dir("$WORKSPACE/deployments"){
+                    script {
+                         // update deployment
+                        ['mytardis', 'api', 'download', 'celery-worker', 'celery-beat'].each { item ->
+                            updateProperty(":[dockerImageFullNameTag]", dockerImageFullNameLatestTag, "${item}.yaml")
+                            echo "${item}.yaml"
+                            sh("kubectl -n ${k8sDeploymentNamespace} delete deployment/${item} --ignore-not-found")
+                            sh("kubectl create -f ${item}.yaml")
+                        }
+                    }
+                }
+            }
+
+            post {// post process for success or failure.
+                success {
+                    slackSend (
+                        teamDomain: "${env.SLACK_TEAM_DOMAIN}",
+                        token: "${env.SLACK_TOKEN}",
+                        channel: "${env.SLACK_CHANNEL}",
+                        color: "good",
+                        message: "${env.BUILD_SUCCESS_MSG}"
+                    )
+                }
+
+                failure {
+                    slackSend (
+                        teamDomain: "${env.SLACK_TEAM_DOMAIN}",
+                        token: "${env.SLACK_TOKEN}",
+                        channel: "${env.SLACK_CHANNEL}",
+                        color: "danger",
+                      message: "${env.BUILD_FAILURE_MSG}"
+                    )
+                }
+            }
+        }
+
+    }
+}
