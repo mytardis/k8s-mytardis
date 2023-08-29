@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - name: mytardis
-          image: [dockerImageFullNameTag]
+          image: :[dockerImageFullNameTag]
           imagePullPolicy: Always
           command:
             - gunicorn

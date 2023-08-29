@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: download
-          image: [dockerImageFullNameTag]
+          image: :[dockerImageFullNameTag]
           imagePullPolicy: Always
           command:
             - gunicorn

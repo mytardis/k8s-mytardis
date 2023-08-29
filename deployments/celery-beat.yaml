@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: celery-beat
-          image: [dockerImageFullNameTag]
+          image: :[dockerImageFullNameTag]
           imagePullPolicy: Always
           command: ["celery", "--app=tardis.celery.tardis_app", "beat", "--loglevel=INFO"]
           securityContext:

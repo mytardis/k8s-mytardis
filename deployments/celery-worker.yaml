@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: celery-worker
-          image: [dockerImageFullNameTag]
+          image: :[dockerImageFullNameTag]
           imagePullPolicy: Always
           command: ["celery", "--app=tardis.celery.tardis_app", "worker", "--queues=celery,default", "--concurrency=1", "--loglevel=INFO"]
           securityContext:

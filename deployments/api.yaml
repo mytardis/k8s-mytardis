@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - name: api
-          image: [dockerImageFullNameTag]
+          image: :[dockerImageFullNameTag]
           imagePullPolicy: Always
           command:
             - gunicorn
