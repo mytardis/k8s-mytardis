@@ -46,9 +46,9 @@ pipeline {
                         dockerImageFullNameTag = "${dockerHubAccount}/${dockerImageName}:${dockerImageTag}"
                     }
                 }
-                
+
                 echo "dockerImageFullNameTag: ${dockerImageFullNameTag}"
-                
+
                 echo "dockerImageFullNameLatestTag: ${dockerImageFullNameLatestTag}"
 
                 echo "start to build docker image for mytardis"
@@ -96,7 +96,7 @@ pipeline {
                 dir("$WORKSPACE/deployments"){
                     script {
                          // update deployment
-                        ['mytardis', 'api', 'download', 'celery-worker', 'celery-beat'].each { item ->
+                        ['mytardis', 'api', 'download', 'sftp', 'celery-worker', 'celery-beat'].each { item ->
                             updateProperty(":[dockerImageFullNameTag]", dockerImageFullNameLatestTag, "${item}.yaml")
                             echo "${item}.yaml"
                             sh("kubectl -n ${k8sDeploymentNamespace} delete deployment/${item} --ignore-not-found")

@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sftp
+  namespace: mytardis
+spec:
+  selector:
+    matchLabels:
+      app: sftp
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: sftp
+        ver: 0.0.1
+    spec:
+      containers:
+        - name: sftp
+          image: :[dockerImageFullNameTag]
+          imagePullPolicy: Always
+          command: ["python3", "manage.py", "sftpd", "-H", "0.0.0.0"]
+          securityContext:
+            privileged: true
+          ports:
+            - name: sftp
+              containerPort: 2200
+              protocol: TCP
+          volumeMounts:
+            - name: tz-config
+              mountPath: /etc/localtime
+            - name: settings
+              mountPath: /app/tardis/settings.yaml
+              subPath: settings.yaml
+            - name: var-log
+              mountPath: /var/log
+            - mountPath: /srv/stormon-test
+              name: smb-stormon-test
+            - mountPath: /srv/stormon-test-vault
+              name: stormon-test-vault
+      volumes:
+        - name: tz-config
+          hostPath:
+            path: /usr/share/zoneinfo/Australia/Melbourne
+        - name: settings
+          configMap:
+            name: mytardis
+        - name: var-log
+          hostPath:
+            path: /var/log
+        - name: smb-stormon-test
+          persistentVolumeClaim:
+            claimName: smb-stormon-test
+        - name: stormon-test-vault
+          persistentVolumeClaim:
+            claimName: stormon-test-vault
