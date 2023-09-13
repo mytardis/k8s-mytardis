@@ -1,4 +1,4 @@
-def stackName = 'pre-prod'
+def stackName = 'prod'
 def dockerHubAccount = 'mytardis'
 def dockerImageName = "k8s-mytardis-${stackName}"
 def dockerImageTag = ''
@@ -15,18 +15,18 @@ def updateProperty(property, value, file) {
 pipeline {
     agent any
     environment {// slack notification settings variables
-        SLACK_CHANNEL = "#jenkins-dev"
+        SLACK_CHANNEL = "#merc_jenkins"
         SLACK_TEAM_DOMAIN = "mercappteam"
         SLACK_TOKEN = credentials("jenkins_slack_token")
-        BUILD_SUCCESS_MSG = "k8s-mytardis docker image has been built successfully at mytardis docker huber vm."
-        BUILD_FAILURE_MSG = "Failed to build k8s-mytardis docker image at mytardis docker huber vm."
+        BUILD_SUCCESS_MSG = "k8s-mytardis prod docker image has been built successfully at mytardis prod ops vm."
+        BUILD_FAILURE_MSG = "Failed to build k8s-mytardis prod docker image at mytardis prod ops vm."
     }
     stages {
-        stage("Build Mytardis Kubernates Docker image and update Kubernates deployment in test cluster") {
+        stage("Build Mytardis Kubernates Docker image and update Kubernates deployment in prod cluster") {
             agent { node { label 'mytardis-pre-prod' } }
             steps {
                 echo 'Checkout k8s-mytardis repo ...'
-                checkout([$class: 'GitSCM', branches: [[name: '*/pre-prod']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/mytardis/k8s-mytardis.git']]])
+                checkout([$class: 'GitSCM', branches: [[name: '*/prod']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/mytardis/k8s-mytardis.git']]])
                 echo "$WORKSPACE"
                 echo "update submodule"
                 sh 'git submodule update --init --recursive'
@@ -34,7 +34,7 @@ pipeline {
                 echo "checkout mytardis branch"
                 dir('submodules/mytardis') {
                     sh 'git rev-parse --abbrev-ref HEAD'
-                    sh 'git checkout dev_v4.6.0'
+                    sh 'git checkout master'
                     script{
                         gitInfo = [
                             'commit_id': sh(returnStdout: true, script: 'git log -n 1 --pretty=format:"%H"').trim(),

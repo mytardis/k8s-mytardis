@@ -49,14 +49,42 @@ spec:
               subPath: settings.yaml
             - name: var-log
               mountPath: /var/log
-            - mountPath: /srv/metadata
-              name: nfs-metadata
             - mountPath: /srv/static
               name: nfs-static
-            - name: stormon-test-vault
-              mountPath: /srv/stormon-test-vault
-            - name: smb-stormon-test
-              mountPath: /srv/stormon-test
+            - mountPath: /srv/stormon-staging
+              name: smb-staging-storage
+            - mountPath: /srv/stormon_ceph
+              name: smb-stormon-ceph
+            - mountPath: /srv/cryoem
+              name: smb-cryoem-ceph
+            - mountPath: /srv/xmfig_ceph
+              name: smb-xmfig-ceph
+            - mountPath: /srv/flowcore_ceph
+              name: smb-flowcore-ceph
+            - mountPath: /srv/mbi_ceph
+              name: smb-mbi-ceph
+            - mountPath: /srv/mmi_ceph
+              name: smb-mmi-ceph
+            - mountPath: /srv/lattice_vault2
+              name: smb-lattice-vault2
+            - mountPath: /srv/mcem_vault2
+              name: smb-mcem-vault2
+            - mountPath: /srv/cryoem_vault2
+              name: smb-cryoem-vault2
+            - mountPath: /srv/cryoem_m1
+              name: smb-cryoem-m1-vault2
+            - mountPath: /srv/stormon_vault2
+              name: smb-stormon-vault2
+            - mountPath: /srv/xmfig_vault2
+              name: smb-xmfig-vault2
+            - mountPath: /srv/mips_cryoem
+              name: smb-cryoem-mips-vault2
+            - mountPath: /srv/mmi_vault2
+              name: smb-mmi-vault2
+            - mountPath: /srv/ny79_vault2
+              name: smb-ny79-vault2
+            - mountPath: /srv/sf32_vault2
+              name: smb-sf32-vault2
           ports:
             - containerPort: 8000
           resources:
@@ -89,15 +117,57 @@ spec:
         - name: var-log
           hostPath:
             path: /var/log
-        - name: nfs-metadata
-          persistentVolumeClaim:
-            claimName: nfs-metadata
         - name: nfs-static
           persistentVolumeClaim:
             claimName: nfs-static
-        - name: stormon-test-vault
+        - name: smb-staging-storage
           persistentVolumeClaim:
-            claimName: stormon-test-vault
-        - name: smb-stormon-test
+            claimName: smb-staging-storage
+        - name: smb-stormon-ceph
           persistentVolumeClaim:
-            claimName: smb-stormon-test
+            claimName: smb-stormon-ceph
+        - name: smb-cryoem-ceph
+          persistentVolumeClaim:
+            claimName: smb-cryoem-ceph
+        - name: smb-xmfig-ceph
+          persistentVolumeClaim:
+            claimName: smb-xmfig-ceph
+        - name: smb-flowcore-ceph
+          persistentVolumeClaim:
+            claimName: smb-flowcore-ceph
+        - name: smb-mbi-ceph
+          persistentVolumeClaim:
+            claimName: smb-mbi-ceph
+        - name: smb-mmi-ceph
+          persistentVolumeClaim:
+            claimName: smb-mmi-ceph
+        - name: smb-lattice-vault2
+          persistentVolumeClaim:
+            claimName: smb-lattice-vault2
+        - name: smb-mcem-vault2
+          persistentVolumeClaim:
+            claimName: smb-mcem-vault2
+        - name: smb-cryoem-vault2
+          persistentVolumeClaim:
+            claimName: smb-cryoem-vault2
+        - name: smb-cryoem-m1-vault2
+          persistentVolumeClaim:
+            claimName: smb-cryoem-m1-vault2
+        - name: smb-stormon-vault2
+          persistentVolumeClaim:
+            claimName: smb-stormon-vault2
+        - name: smb-xmfig-vault2
+          persistentVolumeClaim:
+            claimName: smb-xmfig-vault2
+        - name: smb-cryoem-mips-vault2
+          persistentVolumeClaim:
+            claimName: smb-cryoem-mips-vault2
+        - name: smb-mmi-vault2
+          persistentVolumeClaim:
+            claimName: smb-mmi-vault2
+        - name: smb-ny79-vault2
+          persistentVolumeClaim:
+            claimName: smb-ny79-vault2
+        - name: smb-sf32-vault2
+          persistentVolumeClaim:
+            claimName: smb-sf32-vault2
